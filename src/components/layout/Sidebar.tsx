@@ -116,11 +116,9 @@ export function AppSidebar() {
       <SidebarContent>
         {menuItems.map((group, groupIndex) => (
           <SidebarGroup key={groupIndex}>
-            {!isCollapsed && (
-              <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2">
-                {group.title}
-              </SidebarGroupLabel>
-            )}
+            <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2">
+              {group.title}
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => (
