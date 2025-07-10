@@ -155,7 +155,7 @@ const AnswerQuestionPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-background">
+      <div className="w-full h-full flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -163,7 +163,7 @@ const AnswerQuestionPage = () => {
 
   if (!currentQuestion) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center text-muted-foreground">
+      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
         Não foi possível carregar a questão. Tente novamente.
       </div>
     );
@@ -173,8 +173,8 @@ const AnswerQuestionPage = () => {
   const isCurrentQuestionAnsweredCorrectly = respostasLista[currentQuestionIndex]?.acertou || false;
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
-      <main className="flex-1 flex flex-col overflow-y-auto">
+    <div className="flex flex-col lg:flex-row">
+      <main className="flex-1 flex flex-col">
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm">
           <TopBar
             title={currentQuestion.instituicao || 'Prova'}
@@ -217,7 +217,7 @@ const AnswerQuestionPage = () => {
         </div>
       </main>
 
-      <aside className="hidden lg:block w-full max-w-sm border-l border-border overflow-y-auto p-4">
+      <aside className="w-full lg:max-w-sm border-t lg:border-t-0 border-border p-4">
         <ResponseCard
           respostasLista={respostasLista}
           currentQuestionIndex={currentQuestionIndex}

@@ -17,12 +17,12 @@ export const ResponseCard: React.FC<ResponseCardProps> = ({
   handleNavigateToQuestion,
 }) => {
   return (
-    <Card className="h-full flex flex-col bg-card/50">
+    <Card className="h-full flex flex-col bg-card/50 border-none shadow-none">
       <CardHeader>
         <CardTitle className="text-lg font-bold text-foreground">Cartão Resposta</CardTitle>
       </CardHeader>
       <ResponseCardLegend />
-      <CardContent className="flex-1 p-4 overflow-y-auto">
+      <CardContent className="flex-1 p-4">
         <div className="grid grid-cols-5 gap-2">
           {respostasLista.map((resposta, index) => {
             const isCurrent = index === currentQuestionIndex;
