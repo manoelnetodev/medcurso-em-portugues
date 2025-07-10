@@ -1,34 +1,45 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppSidebar } from "./Sidebar";
 import { Button } from "@/components/ui/button";
 import { Bell, Search, User, Menu } from 'lucide-react';
 import { Input } from "@/components/ui/input";
+import { Outlet } from 'react-router-dom';
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-export function Layout({ children }: LayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+export function Layout() {
+  // Inicializa sidebarOpen com base na largura da tela
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024); // 1024px é o breakpoint 'lg'
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
+  // Efeito para ajustar sidebarOpen ao redimensionar a janela
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024 && !sidebarOpen) {
+        setSidebarOpen(true); // Abre o sidebar se redimensionado para desktop e estiver fechado
+      } else if (window.innerWidth < 1024 && sidebarOpen) {
+        setSidebarOpen(false); // Fecha o sidebar se redimensionado para mobile e estiver aberto
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [sidebarOpen]); // Depende de sidebarOpen para reavaliar quando ele muda
+
   return (
-    <div className="min-h-screen flex w-full bg-background">
+    <div className="flex w-full bg-background"> 
       <AppSidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
       
-      <div className="flex-1 flex flex-col lg:ml-0">
-        {/* Top Header */}
-        <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6">
+      <div className="flex-1 flex flex-col lg:ml-72"> {/* Adicionado lg:ml-72 para compensar a sidebar fixa */}
+        {/* Top Header - Adicionado 'sticky top-0 z-10' para fixar o cabeçalho ao rolar a página */}
+        <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6 sticky top-0 z-10">
           <div className="flex items-center space-x-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="lg:hidden"
+              className="lg:hidden" // Botão de menu visível apenas em mobile
             >
               <Menu className="h-5 w-5" />
             </Button>
@@ -53,9 +64,9 @@ export function Layout({ children }: LayoutProps) {
           </div>
         </header>
 
-        {/* Main Content */}
-        <main className="flex-1 overflow-auto">
-          {children}
+        {/* Main Content - Removido 'flex-1' e 'overflow-auto'. Adicionado 'p-6' para padding. */}
+        <main className="p-6">
+          <Outlet />
         </main>
       </div>
     </div>

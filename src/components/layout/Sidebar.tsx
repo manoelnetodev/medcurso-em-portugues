@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
@@ -30,7 +29,7 @@ const menuItems = [
       { title: "Dashboard", url: "/dashboard", icon: Home },
       { title: "Questões", url: "/questoes", icon: BookOpen },
       { title: "Provas", url: "/provas", icon: FileText },
-      { title: "Listas", url: "/listas", icon: Target },
+      { title: "Listas", url: "/listas", icon: Target }, // Garantir que a URL esteja correta
     ]
   },
   {
@@ -98,12 +97,13 @@ export function AppSidebar({ isOpen, onToggle }: SidebarProps) {
       {/* Sidebar */}
       <aside 
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-72 transform bg-card border-r border-border transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed left-0 top-0 z-50 h-screen w-72 bg-card border-r border-border transition-transform duration-300 ease-in-out flex flex-col",
+          isOpen ? "translate-x-0" : "-translate-x-full",
+          "lg:translate-x-0"
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border">
+        <div className="flex items-center justify-between p-6 border-b border-border flex-shrink-0">
           <div className="flex items-center space-x-3">
             <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-xl">
               <Stethoscope className="w-6 h-6 text-primary-foreground" />
@@ -124,8 +124,8 @@ export function AppSidebar({ isOpen, onToggle }: SidebarProps) {
           </Button>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-6">
+        {/* Navigation - Adicionado overflow-y-auto para rolagem interna e scrollbar-hide para esconder o scrollbar */}
+        <nav className="flex-1 px-4 py-6 space-y-6 overflow-y-auto scrollbar-hide">
           {menuItems.map((group, groupIndex) => (
             <div key={groupIndex} className="space-y-2">
               <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -163,8 +163,8 @@ export function AppSidebar({ isOpen, onToggle }: SidebarProps) {
           ))}
         </nav>
 
-        {/* Footer - User Profile */}
-        <div className="p-4 border-t border-border">
+        {/* Footer - User Profile - Adicionado flex-shrink-0 para garantir que não encolha */}
+        <div className="p-4 border-t border-border flex-shrink-0">
           <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30">
             <Avatar className="h-10 w-10 flex-shrink-0">
               <AvatarImage src={userProfile?.avatar_url || ''} />
