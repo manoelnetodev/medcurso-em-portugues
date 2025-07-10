@@ -1,21 +1,6 @@
 
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarHeader,
-  SidebarFooter,
-  useSidebar,
-} from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { 
   Home, 
   BookOpen, 
@@ -29,9 +14,14 @@ import {
   FileText,
   Clock,
   Award,
-  LogOut
+  LogOut,
+  Menu,
+  X
 } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from '@/hooks/useAuth';
+import { cn } from '@/lib/utils';
 
 const menuItems = [
   {
@@ -67,19 +57,17 @@ const menuItems = [
   }
 ];
 
-export function AppSidebar() {
-  const { state } = useSidebar();
+interface SidebarProps {
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+export function AppSidebar({ isOpen, onToggle }: SidebarProps) {
   const location = useLocation();
   const { userProfile, signOut } = useAuth();
   const currentPath = location.pathname;
 
   const isActive = (path: string) => currentPath === path;
-  const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive 
-      ? "bg-primary text-primary-foreground font-medium" 
-      : "hover:bg-muted/50 text-muted-foreground hover:text-foreground";
-
-  const isCollapsed = state === "collapsed";
 
   const handleSignOut = async () => {
     await signOut();
@@ -98,59 +86,93 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="border-r border-border" collapsible="icon">
-      <SidebarHeader className="border-b border-border p-4">
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center justify-center w-8 h-8 bg-primary rounded-lg">
-            <Stethoscope className="w-5 h-5 text-primary-foreground" />
-          </div>
-          {!isCollapsed && (
-            <div>
-              <h2 className="text-lg font-bold text-foreground">MedCurso</h2>
-              <p className="text-xs text-muted-foreground">Residência Médica</p>
+    <>
+      {/* Overlay para mobile */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onToggle}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside 
+        className={cn(
+          "fixed left-0 top-0 z-50 h-full w-72 transform bg-card border-r border-border transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0",
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-border">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-xl">
+              <Stethoscope className="w-6 h-6 text-primary-foreground" />
             </div>
-          )}
-        </div>
-      </SidebarHeader>
-
-      <SidebarContent>
-        {menuItems.map((group, groupIndex) => (
-          <SidebarGroup key={groupIndex}>
-            <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2">
-              {group.title}
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <NavLink 
-                        to={item.url} 
-                        end 
-                        className={getNavCls}
-                      >
-                        <item.icon className="w-5 h-5 flex-shrink-0" />
-                        <span className="ml-3 text-sm font-medium">{item.title}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
-      </SidebarContent>
-
-      <SidebarFooter className="border-t border-border p-4">
-        <div className="flex items-center space-x-3">
-          <Avatar className="h-8 w-8 flex-shrink-0">
-            <AvatarImage src={userProfile?.avatar_url || ''} />
-            <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-              {getUserInitials()}
-            </AvatarFallback>
-          </Avatar>
+            <div>
+              <h1 className="text-xl font-bold text-foreground">MedCurso</h1>
+              <p className="text-sm text-muted-foreground">Residência Médica</p>
+            </div>
+          </div>
           
-          {!isCollapsed && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggle}
+            className="lg:hidden"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-4 py-6 space-y-6">
+          {menuItems.map((group, groupIndex) => (
+            <div key={groupIndex} className="space-y-2">
+              <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                {group.title}
+              </h3>
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.url);
+                  
+                  return (
+                    <NavLink
+                      key={item.title}
+                      to={item.url}
+                      onClick={() => {
+                        // Fecha o menu no mobile após clicar
+                        if (window.innerWidth < 1024) {
+                          onToggle();
+                        }
+                      }}
+                      className={cn(
+                        "flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                        active
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      )}
+                    >
+                      <Icon className="w-5 h-5 flex-shrink-0" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* Footer - User Profile */}
+        <div className="p-4 border-t border-border">
+          <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30">
+            <Avatar className="h-10 w-10 flex-shrink-0">
+              <AvatarImage src={userProfile?.avatar_url || ''} />
+              <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
+                {getUserInitials()}
+              </AvatarFallback>
+            </Avatar>
+            
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">
                 {userProfile?.name || 'Usuário'}
@@ -159,19 +181,19 @@ export function AppSidebar() {
                 {userProfile?.email}
               </p>
             </div>
-          )}
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSignOut}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground flex-shrink-0"
-            title="Sair"
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleSignOut}
+              className="h-8 w-8 text-muted-foreground hover:text-foreground flex-shrink-0"
+              title="Sair"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-      </SidebarFooter>
-    </Sidebar>
+      </aside>
+    </>
   );
 }
