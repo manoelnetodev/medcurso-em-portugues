@@ -98,7 +98,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className={isCollapsed ? "w-16" : "w-64"} collapsible="icon">
+    <Sidebar className="border-r border-border" collapsible="icon">
       <SidebarHeader className="border-b border-border p-4">
         <div className="flex items-center space-x-2">
           <div className="flex items-center justify-center w-8 h-8 bg-primary rounded-lg">
@@ -117,7 +117,7 @@ export function AppSidebar() {
         {menuItems.map((group, groupIndex) => (
           <SidebarGroup key={groupIndex}>
             {!isCollapsed && (
-              <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2">
                 {group.title}
               </SidebarGroupLabel>
             )}
@@ -131,8 +131,8 @@ export function AppSidebar() {
                         end 
                         className={getNavCls}
                       >
-                        <item.icon className="w-5 h-5" />
-                        {!isCollapsed && <span className="ml-3">{item.title}</span>}
+                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                        <span className="ml-3 text-sm font-medium">{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -145,7 +145,7 @@ export function AppSidebar() {
 
       <SidebarFooter className="border-t border-border p-4">
         <div className="flex items-center space-x-3">
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-8 w-8 flex-shrink-0">
             <AvatarImage src={userProfile?.avatar_url || ''} />
             <AvatarFallback className="bg-primary text-primary-foreground text-sm">
               {getUserInitials()}
@@ -167,7 +167,7 @@ export function AppSidebar() {
             variant="ghost"
             size="icon"
             onClick={handleSignOut}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground flex-shrink-0"
             title="Sair"
           >
             <LogOut className="h-4 w-4" />
