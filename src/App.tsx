@@ -4,9 +4,11 @@ import { AuthProvider, useAuth } from './hooks/useAuth';
 import { Layout } from './components/layout/Layout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
-import AnswerQuestionPage from './pages/AnswerQuestionPage'; // Changed back to default import
+import AnswerQuestionPage from './pages/AnswerQuestionPage';
 import ProvasPage from './pages/ProvasPage';
 import ListasPage from './pages/ListasPage';
+import RankingPage from './pages/RankingPage';
+import SettingsPage from './pages/SettingsPage'; // Importar a nova página
 
 function AppRoutes() {
   const { session, loading } = useAuth();
@@ -24,13 +26,13 @@ function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       {session ? (
         <Route path="/" element={<Layout />}>
-          <Route index element={<DashboardPage />} />
+          <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
-          {/* Rota para responder questões, aceitando listId como parâmetro */}
           <Route path="questoes/:listId" element={<AnswerQuestionPage />} /> 
           <Route path="provas" element={<ProvasPage />} />
           <Route path="listas" element={<ListasPage />} />
-          {/* Adicione outras rotas protegidas aqui */}
+          <Route path="ranking" element={<RankingPage />} />
+          <Route path="settings" element={<SettingsPage />} /> {/* Nova rota para Configurações */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>
       ) : (

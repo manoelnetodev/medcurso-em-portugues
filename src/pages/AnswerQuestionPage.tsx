@@ -4,14 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 import {
-  QuestionHeader,
-  QuestionProgressBar,
+  TopBar,
+  QuestionNavigator,
   QuestionContent,
-  ResponseCard, // QuestionNavigation will be removed
-} from '@/components/answer-question'; // Importar os novos componentes
+  ResponseCard,
+} from '@/components/answer-question';
 
-// Tipos para as questões e alternativas (mantidos aqui por serem centrais)
 export interface QuestionDetails extends Tables<'questoes'> {
   alternativas: Tables<'alternativas'>[];
 }
@@ -28,144 +29,78 @@ const AnswerQuestionPage = () => {
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [respostasLista, setRespostasLista] = useState<RespostaListaWithQuestion[]>([]);
-  const [currentQuestion, setCurrentQuestion] = useState<QuestionDetails | null>(null);
   const [selectedAnswerId, setSelectedAnswerId] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [errorReason, setErrorReason] = useState<Tables<'public', 'Enums', 'motivo_erro'> | null>(null);
 
-  const fetchListData = useCallback(async () => {
-    if (!listId || !user) {
-      setLoading(false);
-      return;
-    }
+  const currentQuestion = respostasLista[currentQuestionIndex]?.questoes || null;
 
+  const fetchListData = useCallback(async () => {
+    if (!listId || !user) return;
     setLoading(true);
     try {
-      const { data: respostasData, error: respostasError } = await supabase
+      const { data, error } = await supabase
         .from('resposta_lista')
-        .select(`
-          id,
-          lista,
-          questao,
-          alternativa_select,
-          acertou,
-          respondeu,
-          motivo_erro,
-          numero,
-          assunto,
-          categoria,
-          subcategoria,
-          dificuldade,
-          discursiva,
-          questoes (
-            id,
-            enunciado,
-            anulada,
-            alternativa_Correta,
-            comentario,
-            instituicao,
-            ano,
-            numero,
-            percentual_acertos,
-            dif_q,
-            categoria,
-            subcategoria,
-            discursiva,
-            alternativas (
-              id,
-              alternativa_txt,
-              correta
-            )
-          )
-        `)
+        .select(`*, questoes (*, alternativas (*))`)
         .eq('lista', parseInt(listId))
         .eq('user_id', user.id)
         .order('numero', { ascending: true });
 
-      if (respostasError) {
-        throw new Error(respostasError.message || "Erro ao buscar respostas da lista.");
-      }
-
-      if (!respostasData || respostasData.length === 0) {
-        toast({
-          title: "Erro",
-          description: "Lista de questões não encontrada ou vazia.",
-          variant: "destructive",
-        });
-        setLoading(false);
+      if (error) throw new Error(error.message);
+      if (!data || data.length === 0) {
+        toast({ title: "Erro", description: "Lista de questões não encontrada.", variant: "destructive" });
+        navigate('/listas');
         return;
       }
 
-      const formattedRespostas = respostasData.map(resp => ({
+      const formatted = data.map(resp => ({
         ...resp,
-        questoes: resp.questoes ? {
-          ...resp.questoes,
-          alternativas: resp.questoes.alternativas?.sort((a, b) => a.id - b.id) || []
-        } : null
-      }));
-
-      setRespostasLista(formattedRespostas as RespostaListaWithQuestion[]);
-      setCurrentQuestion(formattedRespostas[currentQuestionIndex]?.questoes || null);
-      setSelectedAnswerId(formattedRespostas[currentQuestionIndex]?.alternativa_select || null);
-      setShowResult(formattedRespostas[currentQuestionIndex]?.respondeu || false);
-      setErrorReason(formattedRespostas[currentQuestionIndex]?.motivo_erro || null);
-
-    } catch (error: any) {
-      console.error("Erro ao carregar dados da lista:", error.message);
-      toast({
-        title: "Erro",
-        description: error.message,
-        variant: "destructive",
-      });
+        questoes: resp.questoes ? { ...resp.questoes, alternativas: resp.questoes.alternativas?.sort((a, b) => a.id - b.id) || [] } : null
+      })) as RespostaListaWithQuestion[];
+      
+      setRespostasLista(formatted);
+    } catch (err: any) {
+      toast({ title: "Erro ao carregar lista", description: err.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
-  }, [listId, user, toast, currentQuestionIndex]);
+  }, [listId, user, toast, navigate]);
 
   useEffect(() => {
     fetchListData();
   }, [fetchListData]);
 
-  useEffect(() => {
+  const updateCurrentQuestionState = useCallback((index: number) => {
     if (respostasLista.length > 0) {
-      const currentResp = respostasLista[currentQuestionIndex];
-      setCurrentQuestion(currentResp?.questoes || null);
+      const currentResp = respostasLista[index];
       setSelectedAnswerId(currentResp?.alternativa_select || null);
       setShowResult(currentResp?.respondeu || false);
       setErrorReason(currentResp?.motivo_erro || null);
     }
-  }, [currentQuestionIndex, respostasLista]);
+  }, [respostasLista]);
+
+  useEffect(() => {
+    updateCurrentQuestionState(currentQuestionIndex);
+  }, [currentQuestionIndex, updateCurrentQuestionState]);
 
   const handleAnswerSelect = (answerId: number) => {
-    if (!showResult) {
-      setSelectedAnswerId(answerId);
-    }
+    if (!showResult) setSelectedAnswerId(answerId);
   };
 
   const handleSubmit = async () => {
     if (!user || !listId || !currentQuestion || selectedAnswerId === null) {
-      toast({
-        title: "Aviso",
-        description: "Selecione uma alternativa antes de responder.",
-        variant: "default",
-      });
+      toast({ title: "Aviso", description: "Selecione uma alternativa.", variant: "default" });
       return;
     }
 
     setSubmitting(true);
     try {
       let isCorrect = currentQuestion.alternativa_Correta === selectedAnswerId;
-      let finalErrorReason: Tables<'public', 'Enums', 'motivo_erro'> | null = isCorrect ? null : errorReason;
-
-      if (currentQuestion.anulada) {
-        isCorrect = true;
-        finalErrorReason = 'ANULADA';
-      }
+      if (currentQuestion.anulada) isCorrect = true;
 
       const currentRespostaId = respostasLista[currentQuestionIndex].id;
-
       const { error } = await supabase
         .from('resposta_lista')
         .update({
@@ -173,13 +108,11 @@ const AnswerQuestionPage = () => {
           acertou: isCorrect,
           alternativa_select: selectedAnswerId,
           data_resposta: new Date().toISOString(),
-          motivo_erro: finalErrorReason,
+          motivo_erro: isCorrect ? null : errorReason,
         })
         .eq('id', currentRespostaId);
 
-      if (error) {
-        throw new Error(error.message || "Erro ao salvar sua resposta.");
-      }
+      if (error) throw new Error(error.message);
 
       setRespostasLista(prev => {
         const newRespostas = [...prev];
@@ -188,8 +121,6 @@ const AnswerQuestionPage = () => {
           respondeu: true,
           acertou: isCorrect,
           alternativa_select: selectedAnswerId,
-          data_resposta: new Date().toISOString(),
-          motivo_erro: finalErrorReason,
         };
         return newRespostas;
       });
@@ -197,51 +128,22 @@ const AnswerQuestionPage = () => {
       setShowResult(true);
       toast({
         title: isCorrect ? "Resposta Correta!" : "Resposta Incorreta.",
-        description: isCorrect ? "Parabéns!" : "Revise a explicação.",
         variant: isCorrect ? "default" : "destructive",
       });
-
-    } catch (error: any) {
-      console.error("Erro ao submeter resposta:", error.message);
-      toast({
-        title: "Erro ao submeter resposta",
-        description: error.message,
-        variant: "destructive",
-      });
+    } catch (err: any) {
+      toast({ title: "Erro ao submeter", description: err.message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < respostasLista.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-      setSelectedAnswerId(null);
-      setShowResult(false);
-      setErrorReason(null);
-    } else {
-      toast({
-        title: "Fim da Lista",
-        description: "Você respondeu todas as questões desta lista!",
-      });
+  const handleNavigate = (newIndex: number) => {
+    if (newIndex >= 0 && newIndex < respostasLista.length) {
+      setCurrentQuestionIndex(newIndex);
+    } else if (newIndex >= respostasLista.length) {
+      toast({ title: "Fim da Lista", description: "Você respondeu todas as questões!" });
       navigate('/listas');
     }
-  };
-
-  const handlePreviousQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
-      setSelectedAnswerId(null);
-      setShowResult(false);
-      setErrorReason(null);
-    }
-  };
-
-  const handleNavigateToQuestion = (index: number) => {
-    setCurrentQuestionIndex(index);
-    setSelectedAnswerId(null);
-    setShowResult(false);
-    setErrorReason(null);
   };
 
   const motivoErroOptions = [
@@ -253,16 +155,16 @@ const AnswerQuestionPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="min-h-screen w-full flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!currentQuestion) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-        Não foi possível carregar a questão.
+      <div className="min-h-screen w-full flex items-center justify-center text-muted-foreground">
+        Não foi possível carregar a questão. Tente novamente.
       </div>
     );
   }
@@ -271,24 +173,24 @@ const AnswerQuestionPage = () => {
   const isCurrentQuestionAnsweredCorrectly = respostasLista[currentQuestionIndex]?.acertou || false;
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      <QuestionHeader
-        instituicao={currentQuestion.instituicao}
-        ano={currentQuestion.ano}
-        totalQuestions={totalQuestions}
-        currentQuestionIndex={currentQuestionIndex}
-        handlePreviousQuestion={handlePreviousQuestion}
-        handleNextQuestion={handleNextQuestion}
-      />
-
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 overflow-auto">
-        <div className="lg:col-span-2 space-y-6">
-          <QuestionProgressBar
-            currentQuestionIndex={currentQuestionIndex}
-            totalQuestions={totalQuestions}
-            respostasLista={respostasLista}
+    <div className="flex h-screen bg-background overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-y-auto">
+        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm">
+          <TopBar
+            title={currentQuestion.instituicao || 'Prova'}
+            questionCount={totalQuestions}
           />
+          <QuestionNavigator
+            current={currentQuestionIndex + 1}
+            total={totalQuestions}
+            onPrevious={() => handleNavigate(currentQuestionIndex - 1)}
+            onNext={() => handleNavigate(currentQuestionIndex + 1)}
+            isPreviousDisabled={currentQuestionIndex === 0}
+            isNextDisabled={false}
+          />
+        </div>
 
+        <div className="flex-1 p-6">
           <QuestionContent
             currentQuestion={currentQuestion}
             selectedAnswerId={selectedAnswerId}
@@ -300,16 +202,28 @@ const AnswerQuestionPage = () => {
             setErrorReason={setErrorReason}
             isCurrentQuestionAnsweredCorrectly={isCurrentQuestionAnsweredCorrectly}
           />
-
-          {/* QuestionNavigation component removed */}
         </div>
+        
+        <div className="sticky bottom-0 p-4 bg-background/80 backdrop-blur-sm border-t border-border">
+          {showResult ? (
+            <Button onClick={() => handleNavigate(currentQuestionIndex + 1)} className="w-full md:w-auto min-w-[200px]">
+              Próxima Questão
+            </Button>
+          ) : (
+            <Button onClick={handleSubmit} disabled={selectedAnswerId === null || submitting} className="w-full md:w-auto min-w-[200px]">
+              {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Respondendo...</> : 'Responder'}
+            </Button>
+          )}
+        </div>
+      </main>
 
+      <aside className="hidden lg:block w-full max-w-sm border-l border-border overflow-y-auto p-4">
         <ResponseCard
           respostasLista={respostasLista}
           currentQuestionIndex={currentQuestionIndex}
-          handleNavigateToQuestion={handleNavigateToQuestion}
+          handleNavigateToQuestion={handleNavigate}
         />
-      </div>
+      </aside>
     </div>
   );
 };

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from '@/lib/utils';
 import { RespostaListaWithQuestion } from '@/pages/AnswerQuestionPage';
+import { ResponseCardLegend } from './ResponseCardLegend';
 
 interface ResponseCardProps {
   respostasLista: RespostaListaWithQuestion[];
@@ -17,30 +17,31 @@ export const ResponseCard: React.FC<ResponseCardProps> = ({
   handleNavigateToQuestion,
 }) => {
   return (
-    <Card className="lg:col-span-1 h-full flex flex-col"> {/* Removido max-w-[400px] e mx-auto */}
+    <Card className="h-full flex flex-col bg-card/50">
       <CardHeader>
-        <CardTitle className="text-xl font-semibold text-foreground">Progresso da Lista</CardTitle>
+        <CardTitle className="text-lg font-bold text-foreground">Cartão Resposta</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 p-4">
-        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-1"> {/* Grid responsivo */}
+      <ResponseCardLegend />
+      <CardContent className="flex-1 p-4 overflow-y-auto">
+        <div className="grid grid-cols-5 gap-2">
           {respostasLista.map((resposta, index) => {
             const isCurrent = index === currentQuestionIndex;
             const isAnswered = resposta.respondeu;
             const isCorrect = resposta.acertou;
+            const isAnnulled = resposta.questoes?.anulada;
 
             return (
               <Button
                 key={resposta.id}
+                variant="outline"
                 size="icon"
                 className={cn(
-                  "w-8 h-8 rounded-lg text-xs font-bold",
-                  // Estilos para questões respondidas (correta/incorreta)
-                  isAnswered && isCorrect && "bg-green-500 hover:bg-green-600 text-white",
-                  isAnswered && !isCorrect && "bg-red-500 hover:bg-red-600 text-white",
-                  // Estilos para questões não respondidas
-                  !isAnswered && "bg-muted hover:bg-muted-foreground/10 text-muted-foreground",
-                  // Estilos para a questão atual (sobrescreve os anteriores)
-                  isCurrent && "bg-primary text-primary-foreground hover:bg-primary/90"
+                  "w-10 h-10 rounded-lg text-xs font-bold transition-all",
+                  isAnswered && isCorrect && !isAnnulled && "bg-success/80 border-success text-success-foreground hover:bg-success",
+                  isAnswered && !isCorrect && !isAnnulled && "bg-destructive/80 border-destructive text-destructive-foreground hover:bg-destructive",
+                  isAnnulled && "bg-yellow-500/80 border-yellow-500 text-yellow-900 hover:bg-yellow-500",
+                  !isAnswered && "bg-muted/50 hover:bg-muted",
+                  isCurrent && "ring-2 ring-primary ring-offset-2 ring-offset-background"
                 )}
                 onClick={() => handleNavigateToQuestion(index)}
               >

@@ -10,14 +10,15 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom'; // Importar useNavigate
+import { useNavigate } from 'react-router-dom';
+import { formatPercentage } from '@/lib/utils'; // Importar a função de utilidade
 
 const ITEMS_PER_PAGE = 7;
 
 const ListasPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate(); // Inicializar useNavigate
+  const navigate = useNavigate();
 
   const [listas, setListas] = useState<Tables<'lista'>[]>([]);
   const [loading, setLoading] = useState(true);
@@ -182,12 +183,12 @@ const ListasPage = () => {
                     <TableCell>{lista.total_respondidas}/{lista.total_questoes}</TableCell>
                     <TableCell>
                       <Badge variant={lista.porcentagem_acertos && lista.porcentagem_acertos >= 70 ? "default" : "destructive"}>
-                        {lista.porcentagem_acertos || 0}%
+                        {formatPercentage(lista.porcentagem_acertos || 0, 2)}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge variant={lista.porcentagem_estudada && lista.porcentagem_estudada >= 100 ? "default" : "destructive"}>
-                        {lista.porcentagem_estudada || 0}%
+                        {formatPercentage(lista.porcentagem_estudada || 0, 2)}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">

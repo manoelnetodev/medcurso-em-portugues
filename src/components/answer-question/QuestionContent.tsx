@@ -1,7 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle } from 'lucide-react';
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -9,8 +7,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { QuestionDetails } from '@/pages/AnswerQuestionPage'; // Importar o tipo
+import { QuestionDetails } from '@/pages/AnswerQuestionPage';
 import { Tables } from '@/integrations/supabase/types';
+import { AlternativeItem } from './AlternativeItem';
 
 interface QuestionContentProps {
   currentQuestion: QuestionDetails;
@@ -21,7 +20,7 @@ interface QuestionContentProps {
   handleAnswerSelect: (answerId: number) => void;
   motivoErroOptions: { label: string; value: Tables<'public', 'Enums', 'motivo_erro'> }[];
   setErrorReason: (reason: Tables<'public', 'Enums', 'motivo_erro'> | null) => void;
-  isCurrentQuestionAnsweredCorrectly: boolean; // Nova prop para verificar se a questão atual foi acertada
+  isCurrentQuestionAnsweredCorrectly: boolean;
 }
 
 export const QuestionContent: React.FC<QuestionContentProps> = ({
@@ -36,79 +35,48 @@ export const QuestionContent: React.FC<QuestionContentProps> = ({
   isCurrentQuestionAnsweredCorrectly,
 }) => {
   return (
-    <Card>
-      <CardContent className="space-y-6">
-        {/* Adicionado número da questão e nome da prova */}
-        <div className="mb-4">
-          <p className="text-orange-600 font-semibold text-lg">
-            {currentQuestion.numero} - {currentQuestion.instituicao} - {currentQuestion.ano} (R1)
+    <Card className="flex-1 bg-card border-none shadow-none">
+      <CardContent className="p-6 space-y-6">
+        <div>
+          <p className="text-primary font-semibold text-sm mb-2">
+            {currentQuestion.numero} - {currentQuestion.instituicao} - {currentQuestion.ano}
           </p>
+          <div className="prose prose-invert prose-sm max-w-none text-foreground/90">
+            <p>{currentQuestion.enunciado}</p>
+          </div>
         </div>
 
-        {/* Question Text */}
-        <div className="prose prose-sm max-w-none">
-          <p className="text-foreground leading-relaxed">
-            {currentQuestion.enunciado}
-          </p>
-        </div>
-
-        {/* Alternatives */}
         <div className="space-y-3">
-          {currentQuestion.alternativas.map((alt) => (
-            <button
+          <h3 className="text-sm font-semibold text-muted-foreground">Selecione a alternativa abaixo:</h3>
+          {currentQuestion.alternativas.map((alt, index) => (
+            <AlternativeItem
               key={alt.id}
-              onClick={() => handleAnswerSelect(alt.id)}
-              disabled={showResult || submitting}
-              className={`w-full text-left p-4 rounded-lg border transition-colors ${
-                selectedAnswerId === alt.id
-                  ? showResult
-                    ? alt.correta
-                      ? 'border-green-500 bg-green-50 text-green-800'
-                      : 'border-red-500 bg-red-50 text-red-800'
-                    : 'border-primary bg-primary/5 text-primary'
-                  : showResult && alt.correta
-                  ? 'border-green-500 bg-green-50 text-green-800'
-                  : 'border-border hover:border-muted-foreground bg-card hover:bg-muted/50'
-              }`}
-            >
-              <div className="flex items-start space-x-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-xs font-medium">
-                  {alt.alternativa_txt?.trim()?.charAt(0)?.toUpperCase() || ''} {/* Extrai a primeira letra do texto */}
-                </span>
-                <span className="flex-1">{alt.alternativa_txt}</span>
-                {showResult && selectedAnswerId === alt.id && (
-                  alt.correta ? (
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                  ) : (
-                    <XCircle className="w-5 h-5 text-red-600" />
-                  )
-                )}
-                {showResult && alt.correta && selectedAnswerId !== alt.id && (
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                )}
-              </div>
-            </button>
+              alternative={alt}
+              index={index}
+              selectedAnswerId={selectedAnswerId}
+              showResult={showResult}
+              isSubmitting={submitting}
+              onSelect={handleAnswerSelect}
+            />
           ))}
         </div>
 
-        {/* Explanation (shown after answer) */}
         {showResult && (
-          <div className="border-t pt-6 space-y-4">
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h4 className="font-medium text-blue-900 mb-2">Explicação</h4>
-              <p className="text-blue-800 text-sm leading-relaxed">
-                {currentQuestion.comentario || "Nenhuma explicação disponível."}
-              </p>
+          <div className="border-t border-border pt-6 space-y-4 animate-in fade-in-50">
+            <div className="bg-primary/10 p-4 rounded-lg">
+              <h4 className="font-bold text-primary mb-2">Explicação</h4>
+              <div className="prose prose-invert prose-sm max-w-none text-foreground/80">
+                <p>{currentQuestion.comentario || "Nenhuma explicação disponível."}</p>
+              </div>
             </div>
 
-            {/* Motivo do Erro */}
             {!isCurrentQuestionAnsweredCorrectly && !currentQuestion.anulada && (
               <div className="space-y-2">
-                <label htmlFor="error-reason" className="text-sm font-medium text-foreground">
-                  Motivo do Erro:
+                <label htmlFor="error-reason" className="text-sm font-medium text-muted-foreground">
+                  Classifique seu erro para otimizar seus estudos:
                 </label>
                 <Select value={errorReason || ''} onValueChange={(value) => setErrorReason(value as Tables<'public', 'Enums', 'motivo_erro'>)} disabled={submitting}>
-                  <SelectTrigger id="error-reason" className="w-full">
+                  <SelectTrigger id="error-reason" className="w-full md:w-1/2">
                     <SelectValue placeholder="Selecione o motivo do erro" />
                   </SelectTrigger>
                   <SelectContent>
@@ -122,26 +90,19 @@ export const QuestionContent: React.FC<QuestionContentProps> = ({
               </div>
             )}
 
-            {/* Statistics */}
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div className="bg-muted rounded-lg p-3">
-                <div className="text-lg font-bold text-foreground">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+              <div className="bg-muted/50 rounded-lg p-3">
+                <div className="text-xl font-bold text-foreground">
                   {currentQuestion.percentual_acertos || 0}%
                 </div>
                 <div className="text-xs text-muted-foreground">Acertos na questão</div>
               </div>
-              <div className="bg-muted rounded-lg p-3">
-                <div className="text-lg font-bold text-primary">
-                  {/* TODO: Calcular seu histórico de acertos nesta questão */}
-                  N/A%
-                </div>
+              <div className="bg-muted/50 rounded-lg p-3">
+                <div className="text-xl font-bold text-primary">N/A%</div>
                 <div className="text-xs text-muted-foreground">Seu histórico</div>
               </div>
-              <div className="bg-muted rounded-lg p-3">
-                <div className="text-lg font-bold text-foreground">
-                  {/* TODO: Calcular total de vezes que respondeu esta questão */}
-                  N/A
-                </div>
+              <div className="bg-muted/50 rounded-lg p-3">
+                <div className="text-xl font-bold text-foreground">N/A</div>
                 <div className="text-xs text-muted-foreground">Total de respostas</div>
               </div>
             </div>
