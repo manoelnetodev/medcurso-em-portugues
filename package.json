@@ -10,7 +10,9 @@
   "packageManager": "npm@10.9.2",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "npm run build:deps && tsc && vite build",
+    "build:deps": "npm install --include=optional",
+    "build:safe": "tsc && vite build --config vite.config.ts",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 50",
     "preview": "vite preview"
   },

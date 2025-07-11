@@ -13,4 +13,15 @@ export default defineConfig({
       'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
     },
   },
+  build: {
+    rollupOptions: {
+      // Fix for Cloudflare Pages Rollup native module issue
+      external: (id) => {
+        return id.includes('@rollup/rollup-linux-x64-gnu');
+      },
+    },
+    // Ensure compatibility with different environments
+    target: 'es2020',
+    minify: 'esbuild',
+  },
 });
