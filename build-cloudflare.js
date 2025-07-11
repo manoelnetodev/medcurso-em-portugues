@@ -79,7 +79,11 @@ async function buildForCloudflare() {
         'global': 'globalThis',
         'process.env': '{}',
         'process': 'undefined',
-        __DEV__: 'false'
+        __DEV__: 'false',
+        'import.meta.env.VITE_SUPABASE_URL': '"https://djdlbrurfmmhposfuwky.supabase.co"',
+        'import.meta.env.VITE_SUPABASE_ANON_KEY': '"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqZGxicnVyZm1taHBvc2Z1d2t5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3Nzg0NjcsImV4cCI6MjA1ODM1NDQ2N30.kTqGtVzFhIQ89kEwug12LB1XihnBCCWee3iGSJy5uHU"',
+        'import.meta.env.DEV': 'false',
+        'import.meta.env.PROD': 'true'
       },
       alias: {
         '@': resolve(__dirname, 'src')
@@ -123,8 +127,32 @@ async function buildForCloudflare() {
     
     let processedHtml = indexHtml
       .replace('/src/main.tsx', jsFile)
-      .replace('</head>', `  <link rel="stylesheet" href="${cssFile}">\n</head>`)
-      .replace('<script type="module"', '<script type="module" crossorigin');
+      .replace('</head>', `  <link rel="stylesheet" href="${cssFile}">
+  <script>
+    // Error handler para debug
+    window.addEventListener('error', function(e) {
+      console.error('Global error:', e.error);
+      console.error('Stack:', e.error?.stack);
+    });
+    window.addEventListener('unhandledrejection', function(e) {
+      console.error('Unhandled promise rejection:', e.reason);
+    });
+    // Loading debug
+    console.log('HTML loaded, waiting for React...');
+  </script>
+</head>`)
+      .replace('<script type="module"', '<script type="module" crossorigin')
+      .replace('<div id="root"></div>', `<div id="root">
+    <div style="display: flex; align-items: center; justify-content: center; height: 100vh; background: #0a0a0a; color: #fff; font-family: system-ui, sans-serif;">
+      <div style="text-align: center;">
+        <div style="width: 40px; height: 40px; border: 3px solid #333; border-top: 3px solid #e50e5f; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;"></div>
+        <p>Carregando UltraMeds...</p>
+      </div>
+    </div>
+    <style>
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+  </div>`);
     
     writeFileSync('dist/index.html', processedHtml);
     
