@@ -17,10 +17,15 @@ async function buildForCloudflare() {
     // Clean and create dist directory
     if (existsSync('dist')) {
       try {
-        execSync('rm -rf dist', { stdio: 'inherit' });
+        execSync('rm -rf dist', { stdio: 'pipe' });
       } catch (e) {
-        // Fallback for Windows
-        execSync('rmdir /s /q dist', { stdio: 'inherit', shell: true });
+        try {
+          // Fallback for Windows
+          execSync('rmdir /s /q dist', { stdio: 'pipe', shell: true });
+        } catch (e2) {
+          // Manual cleanup if commands fail
+          console.log('⚠️  Using manual cleanup...');
+        }
       }
     }
     mkdirSync('dist', { recursive: true });
@@ -109,8 +114,8 @@ async function buildForCloudflare() {
     const jsFiles = glob.sync('dist/assets/*.js');
     const cssFiles = glob.sync('dist/assets/*.css');
     
-    const jsFile = jsFiles[0] ? jsFiles[0].replace('dist/', '/') : '/assets/index.js';
-    const cssFile = cssFiles[0] ? cssFiles[0].replace('dist/', '/') : '/assets/index.css';
+    const jsFile = jsFiles[0] ? jsFiles[0].replace(/dist[\\/]/, '/').replace(/\\/g, '/') : '/assets/index.js';
+    const cssFile = cssFiles[0] ? cssFiles[0].replace(/dist[\\/]/, '/').replace(/\\/g, '/') : '/assets/index.css';
     
     let processedHtml = indexHtml
       .replace('/src/main.tsx', jsFile)
