@@ -13,7 +13,7 @@
     "build": "npm run build:cloudflare",
     "build:deps": "npm install --include=optional",
     "build:safe": "tsc && vite build --config vite.config.ts",
-    "build:cloudflare": "node build-cloudflare.js",
+    "build:cloudflare": "npm install && node build-cloudflare.js",
     "build:cloudflare-fallback": "npm ci --omit=optional && tsc && vite build --config vite.config.cloudflare.ts",
     "build:local": "npm run build:deps && tsc && vite build",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 50",
