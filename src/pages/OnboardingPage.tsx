@@ -143,7 +143,7 @@ const FOCOS = [
     title: "R+ Pediatria", 
     description: "Especialização em Pediatria",
     icon: <Brain className="w-6 h-6" />,
-    color: "from-purple-500 to-purple-600"
+          color: "from-primary to-primary/80"
   }
 ];
 
@@ -544,11 +544,11 @@ const OnboardingPage = () => {
           <div className="text-center space-y-8 md:space-y-12">
             <div className="space-y-4 md:space-y-6">
               <div className="flex justify-center">
-                <div className="w-16 h-16 md:w-24 md:h-24 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-600 rounded-full flex items-center justify-center shadow-2xl">
+                <div className="w-16 h-16 md:w-24 md:h-24 bg-gradient-to-br from-primary via-primary/80 to-primary/60 rounded-full flex items-center justify-center shadow-2xl">
                   <Sparkles className="w-8 h-8 md:w-12 md:h-12 text-white" />
                 </div>
               </div>
-              <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
+                              <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
                 Bem-vindo ao UltraMeds! 
               </h1>
               <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
@@ -579,7 +579,7 @@ const OnboardingPage = () => {
                 size="lg"
                 rippleColor="rgba(255, 255, 255, 0.4)"
                 duration={600}
-                className="relative bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 md:px-8 py-3 md:py-4 text-lg md:text-xl font-semibold flex items-center gap-2 md:gap-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-purple-500/30 rounded-xl"
+                                  className="relative bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white px-6 md:px-8 py-3 md:py-4 text-lg md:text-xl font-semibold flex items-center gap-2 md:gap-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-primary/30 rounded-xl"
               >
                 <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
                 <span className="relative z-10">Iniciar Configuração</span>
@@ -614,7 +614,7 @@ const OnboardingPage = () => {
                   {/* Foto de Perfil Section */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-3 pb-2 border-b border-gray-700">
-                      <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                      <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/60 rounded-lg flex items-center justify-center">
                         <Camera className="w-4 h-4 text-white" />
                       </div>
                       <h3 className="text-xl font-semibold text-gray-100">Foto de Perfil</h3>
@@ -658,11 +658,11 @@ const OnboardingPage = () => {
                           variant="outline"
                           onClick={() => document.getElementById('avatar-upload')?.click()}
                           disabled={uploadingAvatar}
-                          className="bg-gray-700 border-gray-600 text-gray-100 hover:bg-gray-600 hover:border-purple-500 transition-all duration-200 px-6 py-3"
+                          className="bg-gray-700 border-gray-600 text-gray-100 hover:bg-gray-600 hover:border-primary transition-all duration-200 px-6 py-3"
                         >
                           {uploadingAvatar ? (
                             <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-400 mr-2"></div>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
                               Enviando...
                             </>
                           ) : (
@@ -701,7 +701,7 @@ const OnboardingPage = () => {
                           placeholder="Digite seu nome completo"
                           value={data.name || ''}
                           onChange={(e) => setData(prev => ({ ...prev, name: e.target.value }))}
-                          className="h-12 text-base bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500 focus-visible:ring-purple-500 transition-all duration-200"
+                          className="h-12 text-base bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400 focus:border-primary focus:ring-primary focus-visible:ring-primary transition-all duration-200"
                           autoComplete="off"
                           autoCorrect="off"
                           spellCheck="false"

@@ -282,7 +282,7 @@ body {
 /* Estilos customizados para o DatePicker */
 .custom-day-picker .rdp {
   --rdp-cell-size: 36px;
-  --rdp-accent-color: #8b5cf6;
+  --rdp-accent-color: hsl(var(--primary));
   --rdp-background-color: #1f2937;
   margin: 0;
 }
@@ -338,27 +338,27 @@ body {
 }
 
 .custom-day-picker .rdp-day:hover {
-  background-color: #8b5cf6 !important;
+  background-color: hsl(var(--primary)) !important;
   color: white !important;
   transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 8px hsl(var(--primary) / 0.3);
   border-color: transparent !important;
 }
 
 .custom-day-picker .rdp-day_selected {
-  background-color: #7c3aed !important;
+  background-color: hsl(var(--primary)) !important;
   color: white !important;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-  border: 2px solid #a855f7;
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.4);
+  border: 2px solid hsl(var(--primary));
 }
 
 .custom-day-picker .rdp-day_selected:hover {
-  background-color: #8b5cf6 !important;
+  background-color: hsl(var(--primary)) !important;
   color: white !important;
-  border-color: #a855f7 !important;
+  border-color: hsl(var(--primary)) !important;
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.5);
 }
 
 .custom-day-picker .rdp-day_today {
@@ -369,9 +369,9 @@ body {
 }
 
 .custom-day-picker .rdp-day_today:hover {
-  background-color: #8b5cf6 !important;
+  background-color: hsl(var(--primary)) !important;
   color: white !important;
-  border-color: #8b5cf6 !important;
+  border-color: hsl(var(--primary)) !important;
   transform: scale(1.05);
 }
 
@@ -561,32 +561,32 @@ input[type="number"]::-webkit-inner-spin-button {
   padding: 0;
 }
 
-/* Hover effect - purple background with white text */
+/* Hover effect - primary background with white text */
 .enhanced-day-picker .rdp-day:hover {
-  background-color: #8b5cf6 !important;
+  background-color: hsl(var(--primary)) !important;
   color: white !important;
   transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 8px hsl(var(--primary) / 0.3);
   border-color: transparent !important;
   font-weight: 500;
 }
 
-/* Selected day - darker purple */
+/* Selected day - primary color */
 .enhanced-day-picker .rdp-day_selected {
-  background-color: #7c3aed !important;
+  background-color: hsl(var(--primary)) !important;
   color: white !important;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-  border: 2px solid #a855f7;
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.4);
+  border: 2px solid hsl(var(--primary));
 }
 
 /* Selected day hover - maintain strong contrast */
 .enhanced-day-picker .rdp-day_selected:hover {
-  background-color: #8b5cf6 !important;
+  background-color: hsl(var(--primary)) !important;
   color: white !important;
-  border-color: #a855f7 !important;
+  border-color: hsl(var(--primary)) !important;
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.5);
   font-weight: 600;
 }
 
@@ -599,11 +599,11 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .enhanced-day-picker .rdp-day_today:hover {
-  background-color: #8b5cf6 !important;
+  background-color: hsl(var(--primary)) !important;
   color: white !important;
   border-color: transparent !important;
   transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 8px hsl(var(--primary) / 0.3);
   font-weight: 600;
 }
 
@@ -647,19 +647,19 @@ input[type="number"]::-webkit-inner-spin-button {
 
 /* Ensure specificity for all button elements in the date picker */
 .enhanced-day-picker button:not([aria-disabled="true"]):hover {
-  background-color: #8b5cf6 !important;
+  background-color: hsl(var(--primary)) !important;
   color: white !important;
   transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 8px hsl(var(--primary) / 0.3);
   border-color: transparent !important;
 }
 
 .enhanced-day-picker button[aria-selected="true"]:hover {
-  background-color: #8b5cf6 !important;
+  background-color: hsl(var(--primary)) !important;
   color: white !important;
-  border-color: #a855f7 !important;
+  border-color: hsl(var(--primary)) !important;
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.5);
 }
 
 .enhanced-day-picker button[aria-disabled="true"]:hover {
@@ -672,9 +672,9 @@ input[type="number"]::-webkit-inner-spin-button {
 
 /* Platform-wide Button Hover Improvements */
 .bg-primary:hover {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+  background: hsl(var(--primary) / 0.9) !important;
   transform: translateY(-1px);
-  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 8px 25px hsl(var(--primary) / 0.4);
 }
 
 .bg-secondary:hover {
@@ -692,69 +692,69 @@ input[type="number"]::-webkit-inner-spin-button {
 /* Card Hover Effects */
 .card-hover-effect:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(139, 92, 246, 0.15);
-  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 12px 32px hsl(var(--primary) / 0.15);
+  border-color: hsl(var(--primary) / 0.3);
 }
 
 .dark .card-hover-effect:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(139, 92, 246, 0.2);
-  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 12px 32px hsl(var(--primary) / 0.2);
+  border-color: hsl(var(--primary) / 0.4);
 }
 
 /* Button Variants Consistency */
 button[class*="bg-gradient"]:hover {
   transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 8px 25px hsl(var(--primary) / 0.4);
 }
 
 button[class*="border-gray"]:hover {
-  border-color: #8b5cf6 !important;
-  background-color: rgba(139, 92, 246, 0.1) !important;
+  border-color: hsl(var(--primary)) !important;
+  background-color: hsl(var(--primary) / 0.1) !important;
   transform: translateY(-1px);
 }
 
 /* Input Hover and Focus Consistency */
 input:hover:not(:disabled) {
-  border-color: rgba(139, 92, 246, 0.5) !important;
-  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.2);
+  border-color: hsl(var(--primary) / 0.5) !important;
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.2);
 }
 
 input:focus {
-  border-color: #8b5cf6 !important;
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3) !important;
+  border-color: hsl(var(--primary)) !important;
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.3) !important;
   outline: none !important;
 }
 
 /* Select and Dropdown Consistency */
 [data-radix-select-trigger]:hover {
-  border-color: rgba(139, 92, 246, 0.5) !important;
-  background-color: rgba(139, 92, 246, 0.05) !important;
+  border-color: hsl(var(--primary) / 0.5) !important;
+  background-color: hsl(var(--primary) / 0.05) !important;
 }
 
 /* Checkbox and Switch Consistency */
 [data-state="checked"] {
-  background-color: #8b5cf6 !important;
-  border-color: #8b5cf6 !important;
+  background-color: hsl(var(--primary)) !important;
+  border-color: hsl(var(--primary)) !important;
 }
 
 [data-state="checked"]:hover {
-  background-color: #7c3aed !important;
-  border-color: #7c3aed !important;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  background-color: hsl(var(--primary) / 0.9) !important;
+  border-color: hsl(var(--primary) / 0.9) !important;
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
 }
 
 /* Badge Hover Effects */
 .badge:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
 }
 
 /* Navigation and Menu Items */
 [role="menuitem"]:hover,
 .sidebar-menu-item:hover,
 nav a:hover {
-  background-color: rgba(139, 92, 246, 0.1) !important;
+  background-color: hsl(var(--primary) / 0.1) !important;
   color: #e5e7eb !important;
   transform: translateX(2px);
 }
@@ -770,21 +770,21 @@ nav a:hover {
 /* Icon Button Hovers */
 button[class*="w-8 h-8"]:hover,
 button[class*="w-10 h-10"]:hover {
-  background-color: rgba(139, 92, 246, 0.2) !important;
+  background-color: hsl(var(--primary) / 0.2) !important;
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
 }
 
 /* Loading States */
 .loading-spinner {
-  border-color: rgba(139, 92, 246, 0.3);
-  border-top-color: #8b5cf6;
+  border-color: hsl(var(--primary) / 0.3);
+  border-top-color: hsl(var(--primary));
 }
 
 /* Progress Bar Styling */
 .progress-bar-fill {
-  background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 50%, #c084fc 100%);
-  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+  background: hsl(var(--primary));
+  box-shadow: 0 2px 8px hsl(var(--primary) / 0.4);
 }
 
 /* Ripple Button Enhancement */
@@ -801,7 +801,7 @@ button[class*="w-10 h-10"]:hover {
   width: 0;
   height: 0;
   border-radius: 50%;
-  background: rgba(139, 92, 246, 0.3);
+  background: hsl(var(--primary) / 0.3);
   transform: translate(-50%, -50%);
   transition: width 0.6s, height 0.6s;
 }

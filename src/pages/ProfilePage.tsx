@@ -25,7 +25,7 @@ const ProfilePage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -44,7 +44,7 @@ const ProfilePage = () => {
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex justify-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center shadow-xl">
+            <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-xl">
               <CheckCircle className="w-10 h-10 text-white" />
             </div>
           </div>
@@ -62,7 +62,7 @@ const ProfilePage = () => {
             <div className="flex justify-center mb-4">
               <Avatar className="w-24 h-24">
                 <AvatarImage src={userProfile.avatar_url || undefined} />
-                <AvatarFallback className="bg-purple-600 text-white text-2xl">
+                <AvatarFallback className="bg-primary text-white text-2xl">
                   {userProfile.name ? userProfile.name.charAt(0).toUpperCase() : 
                    (userProfile.email ? userProfile.email.charAt(0).toUpperCase() : 'U')}
                 </AvatarFallback>
@@ -128,7 +128,7 @@ const ProfilePage = () => {
             <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
               <Button 
                 onClick={() => navigate('/dashboard')}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white flex-1 h-12"
+                className="bg-primary hover:bg-primary/90 text-white flex-1 h-12"
               >
                 <ArrowRight className="w-4 h-4 mr-2" />
                 Ir para Dashboard
@@ -167,13 +167,13 @@ const ProfilePage = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/50 dark:to-purple-800/50 border-purple-200 dark:border-purple-700">
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/20 border-primary/30">
             <CardContent className="p-4 text-center">
-              <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-2">
+              <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mx-auto mb-2">
                 <CheckCircle className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-purple-900 dark:text-purple-100">Setup Completo</h3>
-              <p className="text-sm text-purple-700 dark:text-purple-300">Tudo pronto para começar</p>
+              <h3 className="font-semibold text-foreground">Setup Completo</h3>
+              <p className="text-sm text-muted-foreground">Tudo pronto para começar</p>
             </CardContent>
           </Card>
         </div>
