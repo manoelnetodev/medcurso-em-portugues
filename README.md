@@ -32,9 +32,25 @@ cd <YOUR_PROJECT_NAME>
 # Step 3: Install the necessary dependencies.
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Configure environment variables (optional)
+# Create a .env file in the root directory with:
+# VITE_SUPABASE_URL=your_supabase_url
+# VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Step 5: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
+
+## Environment Variables
+
+This project uses Supabase for backend services. You can configure the following environment variables:
+
+- `VITE_SUPABASE_URL`: Your Supabase project URL
+- `VITE_SUPABASE_ANON_KEY`: Your Supabase anonymous public key
+
+If these variables are not set, the application will use the default development configuration.
+
+For deployment on platforms like Cloudflare Pages or Vercel, make sure to set these environment variables in your deployment settings.
 
 **Edit a file directly in GitHub**
 
