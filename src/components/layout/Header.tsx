@@ -98,8 +98,24 @@ export function Header({
   };
 
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    
+    // Aplica transição suave
+    document.documentElement.classList.add('theme-transition');
+    
+    if (newMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+
+    // Remove a classe de transição após a animação
+    setTimeout(() => {
+      document.documentElement.classList.remove('theme-transition');
+    }, 200);
   };
 
   const handleSearch = (e: React.FormEvent) => {

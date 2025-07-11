@@ -55,18 +55,28 @@ export function HeaderModern({ customBreadcrumbs, onMenuToggle }: HeaderModernPr
 
   // Aplica o tema inicial quando o componente monta
   React.useEffect(() => {
+    // Adiciona classe para evitar transições no carregamento inicial
+    document.documentElement.classList.add('no-transition');
+    
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
+
+    // Remove a classe no-transition após um pequeno delay para permitir transições normais
+    setTimeout(() => {
+      document.documentElement.classList.remove('no-transition');
+    }, 100);
   }, []);
 
   const toggleDarkMode = () => {
     const newDarkMode = !isDarkMode;
     setIsDarkMode(newDarkMode);
     
-    // Aplica o tema no documento
+    // Aplica o tema no documento com transição suave
+    document.documentElement.classList.add('theme-transition');
+    
     if (newDarkMode) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
@@ -74,6 +84,11 @@ export function HeaderModern({ customBreadcrumbs, onMenuToggle }: HeaderModernPr
       document.documentElement.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
+
+    // Remove a classe de transição após a animação
+    setTimeout(() => {
+      document.documentElement.classList.remove('theme-transition');
+    }, 200);
   };
 
   const getPageTitle = () => {

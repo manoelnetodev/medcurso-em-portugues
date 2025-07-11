@@ -63,6 +63,54 @@
   }
 }
 
+/* TRANSIÇÕES SUAVES PARA MUDANÇA DE TEMA */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    transition: 
+      background-color 0.2s ease-in-out,
+      border-color 0.2s ease-in-out,
+      color 0.2s ease-in-out,
+      fill 0.2s ease-in-out,
+      stroke 0.2s ease-in-out,
+      box-shadow 0.2s ease-in-out;
+  }
+
+  /* Elementos específicos que precisam de transições mais suaves */
+  html {
+    transition: 
+      background-color 0.3s ease-in-out,
+      color 0.3s ease-in-out;
+  }
+
+  body {
+    transition: 
+      background 0.3s ease-in-out,
+      background-color 0.3s ease-in-out,
+      color 0.3s ease-in-out;
+  }
+
+  /* Elementos de UI que mudam frequentemente */
+  button,
+  input,
+  select,
+  textarea,
+  [role="button"],
+  .sidebar,
+  .header,
+  .card,
+  nav,
+  aside,
+  main {
+    transition: 
+      background-color 0.2s ease-in-out,
+      border-color 0.2s ease-in-out,
+      color 0.2s ease-in-out,
+      box-shadow 0.2s ease-in-out;
+  }
+}
+
 @layer utilities {
   /* Text truncation utilities */
   .line-clamp-1 {
@@ -84,6 +132,12 @@
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
+  }
+
+  /* Utility para desabilitar transições (útil para carregamento inicial) */
+  .no-transition,
+  .no-transition * {
+    transition: none !important;
   }
 }
 
@@ -164,6 +218,64 @@ body {
 
 .animate-shimmer {
   animation: shimmer 2s infinite;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Remove delay for specific elements that need instant response */
+.instant-theme-change,
+.instant-theme-change * {
+  transition: none !important;
+}
+
+/* Enhanced focus states with smooth transitions */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  transition: outline-color 0.2s ease-in-out;
+}
+
+/* Estilo para botões com ripple effect mais suave */
+.ripple-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+}
+
+.ripple-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease-out, height 0.3s ease-out;
+}
+
+.ripple-button:active::before {
+  width: 200px;
+  height: 200px;
+}
+
+/* Theme transition optimization */
+.theme-transition {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Performance optimization for theme changes */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
 
 /* Animação de glow pulsante para botões especiais */
