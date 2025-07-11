@@ -7,8 +7,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      // Garante que 'react' e 'react-dom' sempre resolvam para a mesma instância
-      // Isso ajuda a evitar o erro "Cannot read properties of null (reading 'useRef')"
       'react': path.resolve(__dirname, 'node_modules/react'),
       'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
     },
@@ -20,14 +18,14 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-accordion', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
-        }
+        format: 'es',
+        entryFileNames: '[name].[hash].js',
+        chunkFileNames: '[name].[hash].js',
+        assetFileNames: '[name].[hash].[ext]',
+        manualChunks: undefined
       }
     },
   },
-  // Configurações específicas para Cloudflare Pages
   define: {
     global: 'globalThis',
   },
@@ -37,4 +35,4 @@ export default defineConfig({
       target: 'es2020'
     }
   },
-});
+}); 
