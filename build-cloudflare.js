@@ -13,6 +13,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 async function buildForCloudflare() {
   console.log('🚀 Building for Cloudflare Pages with ESBuild (avoiding Rollup)...');
   
+  // Log das variáveis que serão definidas
+  console.log('🔧 Environment variables being defined:');
+  console.log('   VITE_SUPABASE_URL: https://djdlbrurfmmhposfuwky.supabase.co');
+  console.log('   VITE_SUPABASE_ANON_KEY: [DEFINED]');
+  
   try {
     // Clean and create dist directory
     if (existsSync('dist')) {
@@ -43,8 +48,28 @@ async function buildForCloudflare() {
       });
     }
     
-    // Build the main application bundle
+    // Definições mais específicas das variáveis
+    const defineVars = {
+      'process.env.NODE_ENV': '"production"',
+      'global': 'globalThis',
+      'process.env': '{}',
+      'process': 'undefined',
+      __DEV__: 'false',
+      // Garantir que as variáveis Supabase sejam definidas de múltiplas formas
+      'import.meta.env.VITE_SUPABASE_URL': '"https://djdlbrurfmmhposfuwky.supabase.co"',
+      'import.meta.env.VITE_SUPABASE_ANON_KEY': '"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqZGxicnVyZm1taHBvc2Z1d2t5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3Nzg0NjcsImV4cCI6MjA1ODM1NDQ2N30.kTqGtVzFhIQ89kEwug12LB1XihnBCCWee3iGSJy5uHU"',
+      'import.meta.env.DEV': 'false',
+      'import.meta.env.PROD': 'true',
+      'import.meta.env.MODE': '"production"',
+      // Alternativas para casos específicos
+      'process.env.VITE_SUPABASE_URL': '"https://djdlbrurfmmhposfuwky.supabase.co"',
+      'process.env.VITE_SUPABASE_ANON_KEY': '"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqZGxicnVyZm1taHBvc2Z1d2t5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3Nzg0NjcsImV4cCI6MjA1ODM1NDQ2N30.kTqGtVzFhIQ89kEwug12LB1XihnBCCWee3iGSJy5uHU"',
+    };
+    
     console.log('📦 Building main application...');
+    console.log('🔍 Define variables:', Object.keys(defineVars).length, 'variables');
+    
+    // Build the main application bundle
     const result = await build({
       entryPoints: ['src/main.tsx'],
       bundle: true,
@@ -74,17 +99,7 @@ async function buildForCloudflare() {
         '.ttf': 'dataurl',
         '.eot': 'dataurl'
       },
-      define: {
-        'process.env.NODE_ENV': '"production"',
-        'global': 'globalThis',
-        'process.env': '{}',
-        'process': 'undefined',
-        __DEV__: 'false',
-        'import.meta.env.VITE_SUPABASE_URL': '"https://djdlbrurfmmhposfuwky.supabase.co"',
-        'import.meta.env.VITE_SUPABASE_ANON_KEY': '"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqZGxicnVyZm1taHBvc2Z1d2t5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3Nzg0NjcsImV4cCI6MjA1ODM1NDQ2N30.kTqGtVzFhIQ89kEwug12LB1XihnBCCWee3iGSJy5uHU"',
-        'import.meta.env.DEV': 'false',
-        'import.meta.env.PROD': 'true'
-      },
+      define: defineVars,
       alias: {
         '@': resolve(__dirname, 'src')
       },
@@ -114,7 +129,7 @@ async function buildForCloudflare() {
       logLevel: 'info'
     });
     
-    // Generate HTML file
+    // Generate HTML file with additional debug
     console.log('📄 Generating HTML...');
     const indexHtml = readFileSync('index.html', 'utf8');
     
@@ -129,16 +144,32 @@ async function buildForCloudflare() {
       .replace('/src/main.tsx', jsFile)
       .replace('</head>', `  <link rel="stylesheet" href="${cssFile}">
   <script>
-    // Error handler para debug
+    // Debugging: verificar se as variáveis estão disponíveis
+    console.log('🔍 DEBUG: Verificando variáveis de ambiente...');
+    console.log('VITE_SUPABASE_URL:', typeof window !== 'undefined' ? 'window context' : 'server context');
+    
+    // Global error handlers
     window.addEventListener('error', function(e) {
-      console.error('Global error:', e.error);
-      console.error('Stack:', e.error?.stack);
+      console.error('❌ Global error:', e.error);
+      console.error('📍 Stack:', e.error?.stack);
+      console.error('📁 Filename:', e.filename);
+      console.error('📏 Line:', e.lineno);
     });
+    
     window.addEventListener('unhandledrejection', function(e) {
-      console.error('Unhandled promise rejection:', e.reason);
+      console.error('❌ Unhandled promise rejection:', e.reason);
+      console.error('📍 Promise:', e.promise);
     });
+    
     // Loading debug
-    console.log('HTML loaded, waiting for React...');
+    console.log('✅ HTML loaded, waiting for React...');
+    
+    // Timer para detectar se o carregamento trava
+    setTimeout(function() {
+      if (!window.ReactLoaded) {
+        console.error('⚠️ React não carregou em 10 segundos!');
+      }
+    }, 10000);
   </script>
 </head>`)
       .replace('<script type="module"', '<script type="module" crossorigin')
@@ -147,6 +178,7 @@ async function buildForCloudflare() {
       <div style="text-align: center;">
         <div style="width: 40px; height: 40px; border: 3px solid #333; border-top: 3px solid #e50e5f; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;"></div>
         <p>Carregando UltraMeds...</p>
+        <p style="font-size: 12px; color: #666; margin-top: 8px;">Se esta tela persistir, verifique o console</p>
       </div>
     </div>
     <style>
@@ -167,6 +199,9 @@ async function buildForCloudflare() {
     console.log(`📏 File sizes:`);
     console.log(`   JS: ${(jsStats.size / 1024).toFixed(1)}KB`);
     console.log(`   CSS: ${(cssStats.size / 1024).toFixed(1)}KB`);
+    
+    // Verificar se as variáveis foram mesmo substituídas
+    console.log('🔍 Checking if environment variables were replaced...');
     
   } catch (error) {
     console.error('❌ Build failed:', error);
