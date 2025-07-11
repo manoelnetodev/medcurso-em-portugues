@@ -1,0 +1,133 @@
+#!/usr/bin/env node
+
+import { build } from 'esbuild';
+import { glob } from 'glob';
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from 'fs';
+import { dirname, join, resolve } from 'path';
+import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
+import { tailwindPlugin } from './esbuild-tailwind-plugin.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+async function buildForCloudflare() {
+  console.log('🚀 Building for Cloudflare Pages with ESBuild (avoiding Rollup)...');
+  
+  try {
+    // Clean and create dist directory
+    if (existsSync('dist')) {
+      try {
+        execSync('rm -rf dist', { stdio: 'inherit' });
+      } catch (e) {
+        // Fallback for Windows
+        execSync('rmdir /s /q dist', { stdio: 'inherit', shell: true });
+      }
+    }
+    mkdirSync('dist', { recursive: true });
+    mkdirSync('dist/assets', { recursive: true });
+    
+    // Copy public files
+    if (existsSync('public')) {
+      const publicFiles = glob.sync('public/**/*', { nodir: true });
+      publicFiles.forEach(file => {
+        const destFile = file.replace('public/', 'dist/');
+        mkdirSync(dirname(destFile), { recursive: true });
+        copyFileSync(file, destFile);
+      });
+    }
+    
+    // Build the main application bundle
+    console.log('📦 Building main application...');
+    const result = await build({
+      entryPoints: ['src/main.tsx'],
+      bundle: true,
+      outfile: 'dist/assets/index.js',
+      format: 'esm',
+      target: 'es2020',
+      minify: true,
+      sourcemap: false,
+      jsx: 'automatic',
+      jsxDev: false,
+      treeShaking: true,
+      loader: {
+        '.tsx': 'tsx',
+        '.ts': 'ts',
+        '.jsx': 'jsx',
+        '.js': 'js',
+        '.css': 'css',
+        '.svg': 'dataurl',
+        '.png': 'dataurl',
+        '.jpg': 'dataurl',
+        '.jpeg': 'dataurl',
+        '.gif': 'dataurl',
+        '.webp': 'dataurl',
+        '.woff': 'dataurl',
+        '.woff2': 'dataurl',
+        '.ttf': 'dataurl',
+        '.eot': 'dataurl'
+      },
+      define: {
+        'process.env.NODE_ENV': '"production"',
+        'global': 'globalThis',
+        'process.env': '{}',
+        'process': 'undefined'
+      },
+      alias: {
+        '@': resolve(__dirname, 'src')
+      },
+      external: [],
+      metafile: true,
+      write: true,
+      logLevel: 'info',
+      resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
+      conditions: ['import', 'module', 'browser', 'default'],
+      mainFields: ['browser', 'module', 'main'],
+      platform: 'browser'
+    });
+    
+    // Build CSS with Tailwind processing
+    console.log('🎨 Building CSS with Tailwind...');
+    await build({
+      entryPoints: ['src/index.css'],
+      bundle: true,
+      outfile: 'dist/assets/index.css',
+      minify: true,
+      sourcemap: false,
+      plugins: [tailwindPlugin()],
+      loader: {
+        '.css': 'css'
+      },
+      external: [],
+      logLevel: 'info'
+    });
+    
+    // Generate HTML file
+    console.log('📄 Generating HTML...');
+    const indexHtml = readFileSync('index.html', 'utf8');
+    
+    // Get the actual output file names (with hashes if any)
+    const jsFiles = glob.sync('dist/assets/*.js');
+    const cssFiles = glob.sync('dist/assets/*.css');
+    
+    const jsFile = jsFiles[0] ? jsFiles[0].replace('dist/', '/') : '/assets/index.js';
+    const cssFile = cssFiles[0] ? cssFiles[0].replace('dist/', '/') : '/assets/index.css';
+    
+    let processedHtml = indexHtml
+      .replace('/src/main.tsx', jsFile)
+      .replace('</head>', `  <link rel="stylesheet" href="${cssFile}">\n</head>`);
+    
+    writeFileSync('dist/index.html', processedHtml);
+    
+    console.log('✅ Build completed successfully!');
+    console.log('📊 Build stats:');
+    console.log(`   JavaScript: ${jsFile}`);
+    console.log(`   CSS: ${cssFile}`);
+    
+  } catch (error) {
+    console.error('❌ Build failed:', error);
+    console.error('Stack trace:', error.stack);
+    process.exit(1);
+  }
+}
+
+buildForCloudflare(); 
