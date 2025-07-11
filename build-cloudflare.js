@@ -2,7 +2,7 @@
 
 import { build } from 'esbuild';
 import { glob } from 'glob';
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync, statSync } from 'fs';
 import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
@@ -33,11 +33,13 @@ async function buildForCloudflare() {
     
     // Copy public files
     if (existsSync('public')) {
+      console.log('📂 Copying public files...');
       const publicFiles = glob.sync('public/**/*', { nodir: true });
       publicFiles.forEach(file => {
-        const destFile = file.replace('public/', 'dist/');
+        const destFile = file.replace(/public[\\/]/, 'dist/').replace(/\\/g, '/');
         mkdirSync(dirname(destFile), { recursive: true });
         copyFileSync(file, destFile);
+        console.log(`   Copied: ${file} → ${destFile}`);
       });
     }
     
@@ -54,6 +56,7 @@ async function buildForCloudflare() {
       jsx: 'automatic',
       jsxDev: false,
       treeShaking: true,
+      splitting: false,
       loader: {
         '.tsx': 'tsx',
         '.ts': 'ts',
@@ -75,7 +78,8 @@ async function buildForCloudflare() {
         'process.env.NODE_ENV': '"production"',
         'global': 'globalThis',
         'process.env': '{}',
-        'process': 'undefined'
+        'process': 'undefined',
+        __DEV__: 'false'
       },
       alias: {
         '@': resolve(__dirname, 'src')
@@ -119,7 +123,8 @@ async function buildForCloudflare() {
     
     let processedHtml = indexHtml
       .replace('/src/main.tsx', jsFile)
-      .replace('</head>', `  <link rel="stylesheet" href="${cssFile}">\n</head>`);
+      .replace('</head>', `  <link rel="stylesheet" href="${cssFile}">\n</head>`)
+      .replace('<script type="module"', '<script type="module" crossorigin');
     
     writeFileSync('dist/index.html', processedHtml);
     
@@ -127,6 +132,13 @@ async function buildForCloudflare() {
     console.log('📊 Build stats:');
     console.log(`   JavaScript: ${jsFile}`);
     console.log(`   CSS: ${cssFile}`);
+    
+    // Debug: verificar tamanhos dos arquivos
+    const jsStats = statSync('dist/assets/index.js');
+    const cssStats = statSync('dist/assets/index.css');
+    console.log(`📏 File sizes:`);
+    console.log(`   JS: ${(jsStats.size / 1024).toFixed(1)}KB`);
+    console.log(`   CSS: ${(cssStats.size / 1024).toFixed(1)}KB`);
     
   } catch (error) {
     console.error('❌ Build failed:', error);
