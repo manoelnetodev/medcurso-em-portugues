@@ -1177,7 +1177,8 @@ export type Database = {
         | "PROVA PRÁTICA"
         | "PROVA TEÓRICA"
         | "PROVA COMPLEMENTAR"
-      tipo_de_revisao: "revisao_ia" | "revisao_base"
+        | "REVALIDA"
+      tipo_de_revisao: "revisao_ia" | "revisao_base" | "tarefa"
       tipo_de_user: "admin" | "aluno"
       tipo_lista: "prova" | "lista"
       uf:
@@ -1495,8 +1496,9 @@ export const Constants = {
         "PROVA PRÁTICA",
         "PROVA TEÓRICA",
         "PROVA COMPLEMENTAR",
+        "REVALIDA",
       ],
-      tipo_de_revisao: ["revisao_ia", "revisao_base"],
+      tipo_de_revisao: ["revisao_ia", "revisao_base", "tarefa"],
       tipo_de_user: ["admin", "aluno"],
       tipo_lista: ["prova", "lista"],
       uf: [
