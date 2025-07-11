@@ -130,9 +130,7 @@ const RankingPage = () => {
   }, [activeTab, fetchRanking]);
 
   return (
-    <div className="flex flex-col h-full bg-background p-6">
-      <h1 className="text-3xl font-bold text-foreground">Ranking de Alunos</h1>
-      <p className="text-muted-foreground mb-6">Veja os alunos que mais responderam questões</p>
+    <div className="flex flex-col h-full space-y-6">{/* Removido título redundante */}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
         <TabsList>

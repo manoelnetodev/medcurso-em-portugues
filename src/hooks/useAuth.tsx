@@ -10,6 +10,12 @@ interface UserProfile {
   avatar_url: string | null;
   tipo_de_user: string | null;
   created_at: string;
+  especialidade_principal: string | null;
+  especialidades_secundarias: string[] | null;
+  foco: string | null;
+  instituicao_principal: number | null;
+  instituicoes_secundarias: number[] | null;
+  onboarding_finalizado: boolean | null;
 }
 
 interface AuthContextType {
@@ -18,6 +24,7 @@ interface AuthContextType {
   userProfile: UserProfile | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  setUserProfile: (profile: UserProfile | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -96,7 +103,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       session,
       userProfile,
       loading,
-      signOut
+      signOut,
+      setUserProfile
     }}>
       {children}
     </AuthContext.Provider>

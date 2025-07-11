@@ -10,8 +10,8 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 257 80% 60%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 335 85% 45%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
@@ -22,32 +22,32 @@
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 257 80% 60%;
-    --radius: 0.75rem;
+    --ring: 335 85% 45%;
+    --radius: 0.5rem;
     --success: 148 65% 45%;
     --success-foreground: 0 0% 100%;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 5% 10%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 257 80% 70%;
-    --primary-foreground: 257 80% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 4% 16%;
-    --input: 240 4% 16%;
-    --ring: 257 80% 70%;
+    --background: 224 15% 6%;
+    --foreground: 213 31% 91%;
+    --card: 224 12% 9%;
+    --card-foreground: 213 31% 91%;
+    --popover: 224 15% 6%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 335 85% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 14%;
+    --secondary-foreground: 213 31% 91%;
+    --muted: 220 14% 14%;
+    --muted-foreground: 220 10% 58%;
+    --accent: 220 14% 14%;
+    --accent-foreground: 213 31% 91%;
+    --destructive: 0 75% 58%;
+    --destructive-foreground: 213 31% 91%;
+    --border: 220 13% 18%;
+    --input: 220 13% 18%;
+    --ring: 335 85% 55%;
     --success: 148 65% 45%;
     --success-foreground: 0 0% 100%;
   }
@@ -59,5 +59,771 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
+}
+
+@layer utilities {
+  /* Text truncation utilities */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+  
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+}
+
+/* Gradiente sutil para o background */
+body {
+  background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(210 40% 98%) 100%);
+  min-height: 100vh;
+}
+
+.dark body {
+  background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(224 15% 4%) 100%);
+  min-height: 100vh;
+}
+
+/* Melhorar a aparência dos scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(210 40% 94%);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(210 40% 85%);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(210 40% 80%);
+}
+
+/* Scrollbars em modo escuro */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: hsl(220 14% 12%);
+  border-radius: 8px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(220 13% 20%);
+  border-radius: 8px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(220 13% 25%);
+}
+
+/* Animações suaves para cards */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Animação shimmer para efeito brilhante */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* Animação de glow pulsante para botões especiais */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(229, 14, 95, 0.4), 0 0 10px rgba(229, 14, 95, 0.3), 0 0 15px rgba(229, 14, 95, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(229, 14, 95, 0.6), 0 0 20px rgba(229, 14, 95, 0.4), 0 0 30px rgba(229, 14, 95, 0.3);
+  }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Animação de escala sutil */
+@keyframes subtle-scale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.animate-subtle-scale {
+  animation: subtle-scale 3s ease-in-out infinite;
+}
+
+/* Efeitos de hover para cards */
+.card-hover-effect {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animação de gradiente animado para botões especiais */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Ripple effect para botões */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  transform: translate(-50%, -50%) scale(0);
+  transition: all 0.5s ease;
+}
+
+.ripple-effect:active::before {
+  width: 300px;
+  height: 300px;
+  transition: all 0s;
+  animation: ripple 0.6s ease-out;
+}
+
+/* Efeito de float animado */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Efeito piscante mais suave */
+@keyframes gentle-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.animate-gentle-pulse {
+  animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+/* Estilos customizados para o DatePicker */
+.custom-day-picker .rdp {
+  --rdp-cell-size: 36px;
+  --rdp-accent-color: #8b5cf6;
+  --rdp-background-color: #1f2937;
+  margin: 0;
+}
+
+.custom-day-picker .rdp-months {
+  gap: 0;
+}
+
+.custom-day-picker .rdp-month {
+  width: 100%;
+}
+
+.custom-day-picker .rdp-caption {
+  padding: 0.5rem 0;
+  margin-bottom: 0.5rem;
+}
+
+.custom-day-picker .rdp-table {
+  width: 100%;
+  max-width: none;
+}
+
+.custom-day-picker .rdp-head_cell {
+  width: 36px;
+  height: 36px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.custom-day-picker .rdp-cell {
+  width: 36px;
+  height: 36px;
+  text-align: center;
+  position: relative;
+}
+
+.custom-day-picker .rdp-day {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #d1d5db;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.custom-day-picker .rdp-day:hover {
+  background-color: #8b5cf6 !important;
+  color: white !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
+  border-color: transparent !important;
+}
+
+.custom-day-picker .rdp-day_selected {
+  background-color: #7c3aed !important;
+  color: white !important;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  border: 2px solid #a855f7;
+}
+
+.custom-day-picker .rdp-day_selected:hover {
+  background-color: #8b5cf6 !important;
+  color: white !important;
+  border-color: #a855f7 !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
+}
+
+.custom-day-picker .rdp-day_today {
+  background-color: #374151;
+  color: white;
+  font-weight: 600;
+  border: 1px solid #6b7280;
+}
+
+.custom-day-picker .rdp-day_today:hover {
+  background-color: #8b5cf6 !important;
+  color: white !important;
+  border-color: #8b5cf6 !important;
+  transform: scale(1.05);
+}
+
+.custom-day-picker .rdp-day_outside {
+  color: #6b7280;
+  opacity: 0.5;
+}
+
+.custom-day-picker .rdp-day_outside:hover {
+  background-color: #4b5563 !important;
+  color: #9ca3af !important;
+  transform: scale(1.02);
+}
+
+.custom-day-picker .rdp-day_disabled {
+  color: #4b5563 !important;
+  background-color: transparent !important;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.custom-day-picker .rdp-day_disabled:hover {
+  background-color: transparent !important;
+  color: #4b5563 !important;
+  transform: none !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+/* Botões de navegação */
+.custom-day-picker .rdp-nav_button {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #4b5563;
+  background: #374151;
+  color: #9ca3af;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-day-picker .rdp-nav_button:hover {
+  background: #4b5563;
+  color: white;
+  border-color: #6b7280;
+  transform: scale(1.05);
+}
+
+.custom-day-picker .rdp-nav_button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.custom-day-picker .rdp-nav_button:disabled:hover {
+  background: #374151;
+  transform: none;
+}
+
+/* Remove setas dos inputs number */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.dark .card-hover-effect:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* Classes especiais para nova identidade visual */
+.medcurso-gradient {
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 100%);
+}
+
+.medcurso-text-gradient {
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(335 85% 35%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.medcurso-border-gradient {
+  border: 1px solid transparent;
+  background: linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
+              linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(335 85% 35%) 100%) border-box;
+}
+
+/* Custom scrollbar melhorado para onboarding */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(75 85 99) rgb(31 41 55);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgb(31 41 55);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(75 85 99);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(107 114 128);
+}
+
+/* Enhanced Date Picker Styles */
+.enhanced-day-picker .rdp {
+  color: #d1d5db;
+}
+
+.enhanced-day-picker .rdp-months {
+  display: flex;
+}
+
+.enhanced-day-picker .rdp-month {
+  margin: 0;
+}
+
+.enhanced-day-picker .rdp-caption {
+  display: none !important;
+}
+
+.enhanced-day-picker .rdp-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.enhanced-day-picker .rdp-head_cell {
+  width: 36px;
+  height: 36px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin: 0;
+  padding: 0;
+}
+
+.enhanced-day-picker .rdp-row {
+  display: flex;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.enhanced-day-picker .rdp-cell {
+  width: 36px;
+  height: 36px;
+  text-align: center;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+.enhanced-day-picker .rdp-day {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #d1d5db;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 400;
+  margin: 0;
+  padding: 0;
+}
+
+/* Hover effect - purple background with white text */
+.enhanced-day-picker .rdp-day:hover {
+  background-color: #8b5cf6 !important;
+  color: white !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
+  border-color: transparent !important;
+  font-weight: 500;
+}
+
+/* Selected day - darker purple */
+.enhanced-day-picker .rdp-day_selected {
+  background-color: #7c3aed !important;
+  color: white !important;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  border: 2px solid #a855f7;
+}
+
+/* Selected day hover - maintain strong contrast */
+.enhanced-day-picker .rdp-day_selected:hover {
+  background-color: #8b5cf6 !important;
+  color: white !important;
+  border-color: #a855f7 !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
+  font-weight: 600;
+}
+
+/* Today styling */
+.enhanced-day-picker .rdp-day_today {
+  background-color: #374151;
+  color: white;
+  font-weight: 600;
+  border: 1px solid #6b7280;
+}
+
+.enhanced-day-picker .rdp-day_today:hover {
+  background-color: #8b5cf6 !important;
+  color: white !important;
+  border-color: transparent !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
+  font-weight: 600;
+}
+
+/* Outside month days */
+.enhanced-day-picker .rdp-day_outside {
+  color: #6b7280;
+  opacity: 0.5;
+}
+
+.enhanced-day-picker .rdp-day_outside:hover {
+  background-color: #6b7280 !important;
+  color: #d1d5db !important;
+  opacity: 0.8;
+  transform: scale(1.02);
+}
+
+/* Disabled days */
+.enhanced-day-picker .rdp-day_disabled {
+  color: #4b5563 !important;
+  background-color: transparent !important;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.enhanced-day-picker .rdp-day_disabled:hover {
+  background-color: transparent !important;
+  color: #4b5563 !important;
+  transform: none !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.5;
+}
+
+/* Navigation buttons (hidden but ensuring they don't interfere) */
+.enhanced-day-picker .rdp-nav,
+.enhanced-day-picker .rdp-nav_button,
+.enhanced-day-picker .rdp-nav_button_previous,
+.enhanced-day-picker .rdp-nav_button_next {
+  display: none !important;
+}
+
+/* Ensure specificity for all button elements in the date picker */
+.enhanced-day-picker button:not([aria-disabled="true"]):hover {
+  background-color: #8b5cf6 !important;
+  color: white !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
+  border-color: transparent !important;
+}
+
+.enhanced-day-picker button[aria-selected="true"]:hover {
+  background-color: #8b5cf6 !important;
+  color: white !important;
+  border-color: #a855f7 !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
+}
+
+.enhanced-day-picker button[aria-disabled="true"]:hover {
+  background-color: transparent !important;
+  color: #4b5563 !important;
+  transform: none !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+/* Platform-wide Button Hover Improvements */
+.bg-primary:hover {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+}
+
+.bg-secondary:hover {
+  background-color: #374151 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.bg-destructive:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+/* Card Hover Effects */
+.card-hover-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.dark .card-hover-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+/* Button Variants Consistency */
+button[class*="bg-gradient"]:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+}
+
+button[class*="border-gray"]:hover {
+  border-color: #8b5cf6 !important;
+  background-color: rgba(139, 92, 246, 0.1) !important;
+  transform: translateY(-1px);
+}
+
+/* Input Hover and Focus Consistency */
+input:hover:not(:disabled) {
+  border-color: rgba(139, 92, 246, 0.5) !important;
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.2);
+}
+
+input:focus {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3) !important;
+  outline: none !important;
+}
+
+/* Select and Dropdown Consistency */
+[data-radix-select-trigger]:hover {
+  border-color: rgba(139, 92, 246, 0.5) !important;
+  background-color: rgba(139, 92, 246, 0.05) !important;
+}
+
+/* Checkbox and Switch Consistency */
+[data-state="checked"] {
+  background-color: #8b5cf6 !important;
+  border-color: #8b5cf6 !important;
+}
+
+[data-state="checked"]:hover {
+  background-color: #7c3aed !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Badge Hover Effects */
+.badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Navigation and Menu Items */
+[role="menuitem"]:hover,
+.sidebar-menu-item:hover,
+nav a:hover {
+  background-color: rgba(139, 92, 246, 0.1) !important;
+  color: #e5e7eb !important;
+  transform: translateX(2px);
+}
+
+/* Popover and Dialog Consistency */
+[data-radix-popover-content],
+[data-radix-dialog-content] {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* Icon Button Hovers */
+button[class*="w-8 h-8"]:hover,
+button[class*="w-10 h-10"]:hover {
+  background-color: rgba(139, 92, 246, 0.2) !important;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Loading States */
+.loading-spinner {
+  border-color: rgba(139, 92, 246, 0.3);
+  border-top-color: #8b5cf6;
+}
+
+/* Progress Bar Styling */
+.progress-bar-fill {
+  background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 50%, #c084fc 100%);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+}
+
+/* Ripple Button Enhancement */
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ripple-effect:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Smooth Transitions for All Interactive Elements */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Override harsh transitions on specific elements */
+button, 
+input, 
+select, 
+textarea,
+[role="button"],
+[tabindex]:not([tabindex="-1"]) {
+  transition: all 0.2s ease-in-out;
 }

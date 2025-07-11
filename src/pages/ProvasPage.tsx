@@ -7,8 +7,7 @@ const ProvasPage = () => {
   }, []);
 
   return (
-    <div className="flex flex-col h-full bg-background p-6">
-      <h1 className="text-3xl font-bold text-foreground mb-6">Provas e Instituições</h1>
+    <div className="flex flex-col h-full space-y-6">
       <div className="flex-1 overflow-auto">
         <InstituicoesList />
       </div>

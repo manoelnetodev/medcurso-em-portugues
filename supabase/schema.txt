@@ -1,0 +1,236 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.alternativas (
+  comentario_validado boolean,
+  alternativa_txt text,
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  comentario text,
+  correta boolean,
+  imagens ARRAY,
+  questao bigint,
+  CONSTRAINT alternativas_pkey PRIMARY KEY (id),
+  CONSTRAINT alternativas_questao_fkey FOREIGN KEY (questao) REFERENCES public.questoes(id)
+);
+CREATE TABLE public.assunto (
+  id bigint NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  nome text,
+  categoria bigint,
+  subcategoria bigint,
+  tempo_de_aula bigint,
+  CONSTRAINT assunto_pkey PRIMARY KEY (id),
+  CONSTRAINT assunto_categoria_fkey FOREIGN KEY (categoria) REFERENCES public.categoria(id),
+  CONSTRAINT assunto_subcategoria_fkey FOREIGN KEY (subcategoria) REFERENCES public.subcategoria(id)
+);
+CREATE TABLE public.categoria (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL UNIQUE,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  nome text,
+  abrev text,
+  cor_background text,
+  CONSTRAINT categoria_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.compromissos_rev (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  nome text,
+  tipo USER-DEFINED,
+  categoria bigint,
+  subcategoria bigint,
+  assunto bigint,
+  data_sugerida date,
+  data_realizada date,
+  finalizado boolean,
+  user uuid DEFAULT gen_random_uuid(),
+  revisao_espacada USER-DEFINED,
+  CONSTRAINT compromissos_rev_pkey PRIMARY KEY (id),
+  CONSTRAINT compromissos_rev_assunto_fkey FOREIGN KEY (assunto) REFERENCES public.assunto(id),
+  CONSTRAINT compromissos_rev_categoria_fkey FOREIGN KEY (categoria) REFERENCES public.categoria(id),
+  CONSTRAINT compromissos_rev_subcategoria_fkey FOREIGN KEY (subcategoria) REFERENCES public.subcategoria(id),
+  CONSTRAINT compromissos_rev_user_fkey FOREIGN KEY (user) REFERENCES auth.users(id)
+);
+CREATE TABLE public.comunidade_comentario (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  texto text,
+  user_id uuid,
+  post bigint,
+  CONSTRAINT comunidade_comentario_pkey PRIMARY KEY (id),
+  CONSTRAINT comentario_post_fkey FOREIGN KEY (post) REFERENCES public.comunidade_post(id),
+  CONSTRAINT comentario_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.comunidade_post (
+  comunidade_categoria USER-DEFINED,
+  qtd_comentarios bigint,
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  titulo text,
+  descricao text,
+  id_flashcard bigint,
+  id_questao bigint,
+  titulo_questao text,
+  user uuid DEFAULT auth.uid(),
+  CONSTRAINT comunidade_post_pkey PRIMARY KEY (id),
+  CONSTRAINT comunidade_post_user_fkey FOREIGN KEY (user) REFERENCES auth.users(id)
+);
+CREATE TABLE public.cronograma_base (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT cronograma_base_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.disciplinas (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT disciplinas_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.instituicoes (
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  nome text,
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  nome_g text,
+  uf USER-DEFINED,
+  desabilitada boolean,
+  CONSTRAINT instituicoes_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.lista (
+  tipo_lista USER-DEFINED,
+  qtd_erros bigint,
+  qtd_acertos bigint,
+  user uuid,
+  prova bigint,
+  porcentagem_acertos numeric,
+  total_questoes bigint,
+  total_respondidas bigint,
+  finalizada boolean,
+  porcentagem_estudada numeric,
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  nome text,
+  criado_em timestamp with time zone DEFAULT now(),
+  CONSTRAINT lista_pkey PRIMARY KEY (id),
+  CONSTRAINT lista_user_fkey FOREIGN KEY (user) REFERENCES auth.users(id),
+  CONSTRAINT lista_prova_fkey FOREIGN KEY (prova) REFERENCES public.provas(id)
+);
+CREATE TABLE public.mural_de_informacoes (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  data date,
+  info text,
+  CONSTRAINT mural_de_informacoes_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.notificacao (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT notificacao_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.preset (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  segunda bigint,
+  terca bigint,
+  quarta bigint,
+  quinta bigint,
+  sexta bigint,
+  sabado bigint,
+  domingo bigint,
+  user uuid UNIQUE,
+  data_inicio date,
+  data_fim date,
+  CONSTRAINT preset_pkey PRIMARY KEY (id),
+  CONSTRAINT preset_user_fkey FOREIGN KEY (user) REFERENCES auth.users(id)
+);
+CREATE TABLE public.provas (
+  id_qs ARRAY,
+  bloqueada boolean,
+  ano integer,
+  banca_id integer,
+  nome text,
+  qtd_questoes integer,
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL UNIQUE,
+  uf USER-DEFINED,
+  created_at timestamp without time zone DEFAULT now(),
+  tipo_de_foco USER-DEFINED,
+  instituicao bigint,
+  CONSTRAINT provas_pkey PRIMARY KEY (id),
+  CONSTRAINT provas_instituicao_fkey FOREIGN KEY (instituicao) REFERENCES public.instituicoes(id)
+);
+CREATE TABLE public.questoes (
+  id bigint NOT NULL,
+  ano USER-DEFINED,
+  anulada boolean,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  enunciado text,
+  assunto bigint,
+  updated_at timestamp with time zone DEFAULT now(),
+  categoria bigint,
+  subcategoria bigint,
+  comentario text,
+  dif_q USER-DEFINED,
+  discursiva boolean,
+  foco USER-DEFINED,
+  imagens_enunciado ARRAY,
+  comentario_validado boolean,
+  numero bigint,
+  percentual_acertos numeric,
+  instituicao bigint,
+  prova bigint,
+  alternativa_Correta bigint,
+  CONSTRAINT questoes_pkey PRIMARY KEY (id),
+  CONSTRAINT questoes_instituicao_fkey FOREIGN KEY (instituicao) REFERENCES public.instituicoes(id)
+);
+CREATE TABLE public.resposta_lista (
+  numero bigint,
+  respondeu boolean,
+  user_id uuid,
+  anulada boolean,
+  discursiva boolean,
+  estudou boolean,
+  data_resposta timestamp with time zone,
+  motivo_erro USER-DEFINED,
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  lista bigint,
+  questao bigint,
+  acertou boolean,
+  categoria bigint,
+  subcategoria bigint,
+  assunto bigint,
+  dificuldade USER-DEFINED,
+  alternativa_select bigint,
+  resposta_txt text,
+  CONSTRAINT resposta_lista_pkey PRIMARY KEY (id),
+  CONSTRAINT resposta_lista_questao_fkey FOREIGN KEY (questao) REFERENCES public.questoes(id),
+  CONSTRAINT resposta_lista_lista_fkey FOREIGN KEY (lista) REFERENCES public.lista(id),
+  CONSTRAINT resposta_lista_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.subcategoria (
+  id bigint NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  nome text,
+  categoria bigint,
+  CONSTRAINT subcategoria_pkey PRIMARY KEY (id),
+  CONSTRAINT subcategoria_categoria_fkey FOREIGN KEY (categoria) REFERENCES public.categoria(id)
+);
+CREATE TABLE public.user_profile (
+  uid_gc text,
+  tipo_de_user USER-DEFINED,
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  user_id uuid,
+  name text,
+  avatar_url text,
+  created_at timestamp with time zone DEFAULT now(),
+  email text,
+  instituicao_principal bigint,
+  instituicoes_secundarias ARRAY,
+  foco USER-DEFINED,
+  onboarding_finalizado boolean,
+  especialidade_principal USER-DEFINED,
+  especialidades_secundarias ARRAY,
+  instagram text,
+  whatsapp text,
+  dt_nascimento date,
+  CONSTRAINT user_profile_pkey PRIMARY KEY (id),
+  CONSTRAINT user_profile_instituicao_principal_fkey FOREIGN KEY (instituicao_principal) REFERENCES public.instituicoes(id),
+  CONSTRAINT user_profile_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);

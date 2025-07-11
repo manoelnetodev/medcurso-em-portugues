@@ -1,19 +1,34 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Play, Trash2 } from 'lucide-react';
+import { Search, Play, Trash2, BookOpen, Clock, Target, BarChart3, Calendar, Filter, MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { formatPercentage } from '@/lib/utils'; // Importar a função de utilidade
+import { formatPercentage, cn } from '@/lib/utils';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
 
-const ITEMS_PER_PAGE = 7;
+const ITEMS_PER_PAGE = 10;
 
 const ListasPage = () => {
   const { user } = useAuth();
@@ -70,12 +85,36 @@ const ListasPage = () => {
 
   const getStatusBadge = (lista: Tables<'lista'>) => {
     if (lista.finalizada) {
-      return <Badge variant="default" className="bg-green-500 text-white">Finalizada</Badge>;
+      return (
+        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+          <Target className="w-3 h-3 mr-1" />
+          Finalizada
+        </Badge>
+      );
     }
     if (lista.total_respondidas && lista.total_respondidas > 0) {
-      return <Badge variant="secondary" className="bg-blue-500 text-white">Em progresso</Badge>;
+      return (
+        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+          <Clock className="w-3 h-3 mr-1" />
+          Em progresso
+        </Badge>
+      );
     }
-    return <Badge variant="secondary" className="bg-yellow-500 text-white">Não iniciada</Badge>;
+    return (
+      <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+        <BookOpen className="w-3 h-3 mr-1" />
+        Não iniciada
+      </Badge>
+    );
+  };
+
+  const getCategoryColor = (tipo: string) => {
+    const colors = {
+      'prova': 'bg-primary/10 text-primary border-primary/20',
+      'lista': 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+      'default': 'bg-muted text-muted-foreground border-muted'
+    };
+    return colors[tipo as keyof typeof colors] || colors.default;
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,20 +122,11 @@ const ListasPage = () => {
     setCurrentPage(0);
   };
 
-  const handlePreviousPage = () => {
-    setCurrentPage(prev => Math.max(0, prev - 1));
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(totalPages - 1, prev + 1));
-  };
-
   const handleDeleteList = async (listId: number) => {
     if (!confirm("Tem certeza que deseja excluir esta lista?")) {
       return;
     }
-    // TODO: Implementar exclusão de respostas_lista primeiro, depois a lista
-    // Por simplicidade, aqui apenas a lista será excluída.
+    
     const { error } = await supabase
       .from('lista')
       .delete()
@@ -113,109 +143,215 @@ const ListasPage = () => {
         title: "Sucesso",
         description: "Lista excluída com sucesso!",
       });
-      fetchListas(); // Recarregar a lista após a exclusão
+      fetchListas();
     }
   };
 
   const handleContinueList = (listId: number) => {
-    navigate(`/questoes/${listId}`); // Redirecionar para a página de questões
+    navigate(`/questoes/${listId}`);
+  };
+
+  const handleViewResults = (listId: number) => {
+    navigate(`/resultados/${listId}`);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
   };
 
   return (
-    <div className="flex flex-col h-full bg-background p-6">
-      <h1 className="text-3xl font-bold text-foreground">Listas</h1>
-      <p className="text-muted-foreground mb-6">Listas de questões, provas e simulados iniciados</p>
-
-      <div className="relative w-full max-w-md mb-6">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-        <Input
-          placeholder="Buscar"
-          className="pl-10"
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
+    <div className="space-y-6">
+      {/* Header com busca */}
+      <div className="flex items-center justify-between">
+        <div className="relative w-72">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <Input
+            placeholder="Buscar listas..."
+            className="pl-10"
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm">
+            <Filter className="w-4 h-4 mr-2" />
+            Filtros
+          </Button>
+        </div>
       </div>
 
-      <Card className="flex-1">
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[250px]">Nome</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Data de criação</TableHead>
-                <TableHead>Progresso</TableHead>
-                <TableHead>Desempenho</TableHead>
-                <TableHead>% Estudadas</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell><Skeleton className="h-4 w-[200px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="h-4 w-[80px]" /></TableCell>
-                  </TableRow>
-                ))
-              ) : listas.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                    Nenhuma lista encontrada.
+      {/* Tabela */}
+      <div className="rounded-lg border bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Lista</TableHead>
+              <TableHead>Progresso</TableHead>
+              <TableHead>Última atividade</TableHead>
+              <TableHead>Categorias</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 bg-muted animate-pulse rounded-full"></div>
+                      <div>
+                        <div className="h-4 w-32 bg-muted animate-pulse rounded mb-1"></div>
+                        <div className="h-3 w-20 bg-muted animate-pulse rounded"></div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 w-16 bg-muted animate-pulse rounded"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 w-20 bg-muted animate-pulse rounded"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-6 w-16 bg-muted animate-pulse rounded"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-8 w-8 bg-muted animate-pulse rounded ml-auto"></div>
                   </TableCell>
                 </TableRow>
-              ) : (
-                listas.map((lista) => (
-                  <TableRow key={lista.id}>
+              ))
+            ) : listas.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-12">
+                  <div className="flex flex-col items-center gap-2">
+                    <BookOpen className="h-12 w-12 text-muted-foreground" />
+                    <p className="text-muted-foreground">
+                      {searchTerm ? 'Nenhuma lista encontrada.' : 'Você ainda não tem listas.'}
+                    </p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              listas.map((lista) => {
+                const progressPercent = lista.total_questoes ? (lista.total_respondidas || 0) / lista.total_questoes * 100 : 0;
+                const accuracyPercent = lista.porcentagem_acertos || 0;
+                
+                return (
+                  <TableRow key={lista.id} className="group hover:bg-muted/50">
                     <TableCell>
-                      <div className="font-medium text-foreground">{lista.nome}</div>
-                      <div className="text-sm text-muted-foreground">{lista.tipo_lista === 'prova' ? 'Prova' : 'Lista'}</div>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                            {lista.nome.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium text-foreground leading-none">{lista.nome}</p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {lista.total_questoes || 0} questões
+                          </p>
+                        </div>
+                      </div>
                     </TableCell>
                     <TableCell>
-                      {getStatusBadge(lista)}
+                      <div className="flex items-center gap-2">
+                        <div className="w-16">
+                          <Progress value={progressPercent} className="h-2" />
+                        </div>
+                        <span className="text-sm font-medium text-foreground min-w-0">
+                          {Math.round(progressPercent)}%
+                        </span>
+                        {lista.finalizada && (
+                          <span className="text-green-600 text-xs">• {Math.round(accuracyPercent)}% acertos</span>
+                        )}
+                      </div>
                     </TableCell>
-                    <TableCell>{new Date(lista.criado_em || '').toLocaleDateString('pt-BR')}</TableCell>
-                    <TableCell>{lista.total_respondidas}/{lista.total_questoes}</TableCell>
-                    <TableCell>
-                      <Badge variant={lista.porcentagem_acertos && lista.porcentagem_acertos >= 70 ? "default" : "destructive"}>
-                        {formatPercentage(lista.porcentagem_acertos || 0, 2)}
-                      </Badge>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {formatDate(lista.criado_em || '')}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={lista.porcentagem_estudada && lista.porcentagem_estudada >= 100 ? "default" : "destructive"}>
-                        {formatPercentage(lista.porcentagem_estudada || 0, 2)}
-                      </Badge>
+                      <div className="flex gap-1">
+                        {getStatusBadge(lista)}
+                        <Badge variant="outline" className={getCategoryColor(lista.tipo_lista || 'default')}>
+                          {lista.tipo_lista === 'prova' ? 'Prova' : 'Lista'}
+                        </Badge>
+                      </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end space-x-2">
-                        <Button variant="ghost" size="icon" title="Continuar/Iniciar" onClick={() => handleContinueList(lista.id)}>
-                          <Play className="w-4 h-4" />
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleContinueList(lista.id)}
+                          className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Play className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" title="Excluir" onClick={() => handleDeleteList(lista.id)}>
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
+                        
+                        {lista.finalizada && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewResults(lista.id)}
+                            className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <BarChart3 className="h-4 w-4" />
+                          </Button>
+                        )}
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleContinueList(lista.id)}>
+                              <Play className="mr-2 h-4 w-4" />
+                              Continuar
+                            </DropdownMenuItem>
+                            {lista.finalizada && (
+                              <DropdownMenuItem onClick={() => handleViewResults(lista.id)}>
+                                <BarChart3 className="mr-2 h-4 w-4" />
+                                Ver resultados
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => handleDeleteList(lista.id)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-        <div className="flex items-center justify-between px-4 py-4 border-t">
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Paginação */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
-            Página {currentPage + 1} de {totalPages === 0 ? 1 : totalPages}
+            Página {currentPage + 1} de {totalPages}
           </div>
-          <div className="space-x-2">
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={handlePreviousPage}
+              onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
               disabled={currentPage === 0 || loading}
             >
               Anterior
@@ -223,14 +359,14 @@ const ListasPage = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={handleNextPage}
-              disabled={currentPage >= totalPages - 1 || loading || totalPages === 0}
+              onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+              disabled={currentPage >= totalPages - 1 || loading}
             >
-              Próxima
+              Próximo
             </Button>
           </div>
         </div>
-      </Card>
+      )}
     </div>
   );
 };

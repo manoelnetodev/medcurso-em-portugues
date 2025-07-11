@@ -98,7 +98,7 @@ const AuthPage = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl mb-4">
               <Stethoscope className="w-8 h-8 text-primary-foreground" />
             </div>
-            <h1 className="text-2xl font-bold text-foreground">MedCurso</h1>
+            <h1 className="text-2xl font-bold text-foreground">UltraMeds</h1>
             <p className="text-muted-foreground mt-2">Sua plataforma completa para residência médica</p>
           </div>
 
@@ -228,7 +228,7 @@ const AuthPage = () => {
               </div>
               
               <blockquote className="text-xl font-medium mb-6 leading-relaxed">
-                "O MedCurso me ajudou a economizar centenas de horas de estudo. 
+                "O UltraMeds me ajudou a economizar centenas de horas de estudo. 
                 Consegui focar nos pontos mais importantes e passar na residência dos meus sonhos."
               </blockquote>
               

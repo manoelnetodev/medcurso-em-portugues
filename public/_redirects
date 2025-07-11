@@ -1,0 +1,9 @@
+# SPA redirect rule for React Router
+/*    /index.html   200
+
+# API redirects (caso tenha)
+/api/*  /api/:splat  200
+
+# Cache optimization
+/assets/*  /assets/:splat  200
+Cache-Control: max-age=31536000 
