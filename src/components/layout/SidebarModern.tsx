@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Home, BookOpen, FileText, List as ListIcon, Brain, Clock, Award, LifeBuoy, Settings, ChevronLeft, ChevronRight, User, LogOut, BarChart3, Users, HelpCircle, TrendingUp
+  Home, BookOpen, FileText, List as ListIcon, Brain, Clock, Award, LifeBuoy, Settings, ChevronLeft, ChevronRight, User, LogOut, BarChart3, Users, HelpCircle, TrendingUp, MessageCircle
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -11,22 +11,19 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { name: 'Dashboard', icon: Home, path: '/dashboard' },
-  { name: 'Questões', icon: BookOpen, path: '/questoes' },
   { name: 'Provas', icon: FileText, path: '/provas', badge: '3' },
   { name: 'Listas', icon: ListIcon, path: '/listas' },
-  { name: 'Resultados', icon: TrendingUp, path: '/resultados' },
+  { name: 'Comunidade', icon: MessageCircle, path: '/comunidade' },
   { name: 'Ranking', icon: Award, path: '/ranking' },
 ];
 
 const secondaryItems = [
   { name: 'Flashcards', icon: Brain, path: '/flashcards' },
   { name: 'Cronograma', icon: Clock, path: '/cronograma' },
-  { name: 'Instituições', icon: Users, path: '/instituicoes' },
 ];
 
 const supportItems = [
   { name: 'Ajuda', icon: HelpCircle, path: '/help' },
-  { name: 'Configurações', icon: Settings, path: '/settings' },
 ];
 
 interface SidebarModernProps {

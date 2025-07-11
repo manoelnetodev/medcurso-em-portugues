@@ -15,6 +15,7 @@ import OnboardingPage from './pages/OnboardingPage';
 import ProfilePage from './pages/ProfilePage';
 import OnboardingGuard from './components/OnboardingGuard';
 import { Toaster } from '@/components/ui/toaster';
+import { ComunidadePage } from './pages/ComunidadePage';
 
 function AppRoutes() {
   const { session, loading } = useAuth();
@@ -39,6 +40,7 @@ function AppRoutes() {
           <Route path="resultados/:listId" element={<ResultsPage />} />
           <Route path="provas" element={<ProvasPage />} />
           <Route path="listas" element={<ListasPage />} />
+          <Route path="comunidade" element={<ComunidadePage />} />
           <Route path="ranking" element={<RankingPage />} />
           <Route path="cronograma" element={<CronogramaPage />} />
           <Route path="profile" element={<ProfilePage />} />

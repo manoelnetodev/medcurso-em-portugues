@@ -1,11 +1,27 @@
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { SidebarModern } from './SidebarModern';
 import { HeaderModern } from './HeaderModern';
 
 export function Layout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Iniciar collapsed no mobile
+  const location = useLocation();
+  
+  // Detectar se estamos na página de responder questões
+  const isQuestionPage = location.pathname.startsWith('/questoes/');
 
+  // Layout especial para página de questões (sem header/sidebar)
+  if (isQuestionPage) {
+    return (
+      <div className="min-h-screen bg-background">
+        <main className="min-h-screen">
+          <Outlet />
+        </main>
+      </div>
+    );
+  }
+
+  // Layout padrão para outras páginas
   return (
     <div className="min-h-screen bg-background">
       {/* Desktop Sidebar */}

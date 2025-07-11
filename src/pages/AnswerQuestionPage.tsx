@@ -5,12 +5,13 @@ import { Tables } from "@/integrations/supabase/types";
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Loader2, BookOpen, Clock, Target, BarChart3, Settings, MessageSquare, AlertTriangle, SkipForward } from 'lucide-react';
+import { Loader2, BookOpen, Clock, Target, BarChart3, Settings, MessageSquare, AlertTriangle, SkipForward, ArrowLeft } from 'lucide-react';
 import { TopBar } from '@/components/answer-question/TopBar';
 import { QuestionNavigator } from '@/components/answer-question/QuestionNavigator';
 import { QuestionContent } from '@/components/answer-question/QuestionContent';
 import { ResponseCard } from '@/components/answer-question/ResponseCard';
 import { QuestionTimer } from '@/components/answer-question/QuestionTimer';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { cn } from '@/lib/utils';
 
 export interface QuestionDetails extends Tables<'questoes'> {
@@ -116,22 +117,35 @@ const AnswerQuestionPage = () => {
     updateCurrentQuestionState(currentQuestionIndex);
   }, [currentQuestionIndex, updateCurrentQuestionState]);
 
-  // Atalho de teclado para ver resultados
+  // Atalhos de teclado
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
+      // Verificar se não está em um input ou textarea
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+
       // Tecla R para ver resultados
       if (event.key.toLowerCase() === 'r' && !event.ctrlKey && !event.altKey && !event.metaKey) {
-        // Verificar se não está em um input ou textarea
-        const target = event.target as HTMLElement;
-        if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA' && !target.isContentEditable) {
-          event.preventDefault();
-          toast({
-            title: "Navegando para resultados",
-            description: "Atalho ativado: Tecla R",
-            variant: "default"
-          });
-          navigate(`/resultados/${listId}`);
-        }
+        event.preventDefault();
+        toast({
+          title: "Navegando para resultados",
+          description: "Atalho ativado: Tecla R",
+          variant: "default"
+        });
+        navigate(`/resultados/${listId}`);
+      }
+      
+      // Tecla ESC para voltar às listas
+      if (event.key === 'Escape' && !event.ctrlKey && !event.altKey && !event.metaKey) {
+        event.preventDefault();
+        toast({
+          title: "Voltando às listas",
+          description: "Atalho ativado: Tecla ESC",
+          variant: "default"
+        });
+        navigate('/listas');
       }
     };
 
@@ -311,125 +325,111 @@ const AnswerQuestionPage = () => {
   const accuracyPercentage = answeredQuestions > 0 ? (correctAnswers / answeredQuestions) * 100 : 0;
   const isCurrentQuestionAnsweredCorrectly = respostasLista[currentQuestionIndex]?.acertou || false;
 
-  const HEADER_GLOBAL_HEIGHT = 64; // altura estimada do header global em px
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      {/* Header com informações da lista */}
-      <div className="sticky top-20 z-30 bg-background/90 backdrop-blur-xl border-b border-border/40 shadow-sm">
+      {/* Progress Bar */}
+      <div className="bg-background/95 backdrop-blur border-b border-border/40 sticky top-0 z-20">
         <div className="px-4 sm:px-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between py-3 gap-3">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-primary/10 rounded-lg">
-                  <BookOpen className="h-4 w-4 text-primary" />
+          <div className="flex items-center justify-between py-4">
+            <div className="flex items-center gap-4">
+              {/* Botão Voltar */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/listas')}
+                className="text-muted-foreground hover:text-foreground h-9 px-2 rounded-lg"
+                title="Voltar para Listas (ESC)"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <BookOpen className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-foreground leading-tight">{listName}</h1>
-                  <p className="text-xs text-muted-foreground font-medium">
-                    {totalQuestions} questões • {answeredQuestions} respondidas
-                  </p>
+                  <span className="text-lg font-semibold text-foreground">{listName}</span>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                    <span>Questão {currentQuestionIndex + 1} de {totalQuestions}</span>
+                    <div className="w-40 h-2 bg-muted rounded-lg overflow-hidden">
+                      <div 
+                        className="h-full bg-primary transition-all duration-300 ease-out rounded-lg"
+                        style={{ width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%` }}
+                      />
+                    </div>
+                    <span className="font-medium">{Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)}%</span>
+                  </div>
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              {/* Progress Stats */}
-              <div className="hidden md:flex items-center gap-4 text-xs">
-                <div className="flex items-center gap-1.5">
-                  <Target className="h-3 w-3 text-primary" />
+            <div className="flex items-center gap-3">
+              {/* Stats */}
+              <div className="hidden lg:flex items-center gap-6 text-sm">
+                <div className="flex items-center gap-2">
+                  <Target className="h-4 w-4 text-primary" />
                   <span className="text-muted-foreground">Progresso:</span>
                   <span className="font-semibold text-foreground">{Math.round(progressPercentage)}%</span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <BarChart3 className="h-3 w-3 text-success" />
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4 text-success" />
                   <span className="text-muted-foreground">Acurácia:</span>
                   <span className="font-semibold text-foreground">{Math.round(accuracyPercentage)}%</span>
                 </div>
               </div>
               
               {/* Action Buttons */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
+                <ThemeToggle 
+                  size="sm"
+                  variant="ghost"
+                  className="text-muted-foreground hover:text-foreground h-9 w-9 rounded-lg"
+                />
+                
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   className={cn(
-                    "text-muted-foreground hover:text-foreground h-8 px-2 rounded-lg",
+                    "text-muted-foreground hover:text-foreground h-9 px-3 rounded-lg",
                     showTimer && "bg-primary/10 text-primary"
                   )}
                   onClick={handleTimerToggle}
                 >
-                  <Clock className="w-3 h-3 mr-1" />
+                  <Clock className="w-4 h-4 mr-1" />
                   Timer
                 </Button>
                 
-                {/* Botão de Pular no Header */}
                 {!showResult && (
                   <Button 
                     variant="ghost" 
                     size="sm" 
                     onClick={handleSkipQuestion}
                     disabled={submitting || currentQuestionIndex + 1 >= totalQuestions}
-                    className="text-muted-foreground hover:text-foreground h-8 px-2 rounded-lg"
+                    className="text-muted-foreground hover:text-foreground h-9 px-3 rounded-lg"
                   >
-                    <SkipForward className="w-3 h-3 mr-1" />
+                    <SkipForward className="w-4 h-4 mr-1" />
                     Pular
                   </Button>
                 )}
                 
-                {/* Atalho Ver Resultados */}
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   onClick={() => navigate(`/resultados/${listId}`)}
-                  className="text-muted-foreground hover:text-foreground h-8 px-2 rounded-lg relative animate-pulse hover:animate-none animate-glow-pulse bg-gradient-to-r from-success/10 to-primary/10 border border-success/20"
-                  title="Atalho: Ver resultados (Tecla R)"
+                  className="text-muted-foreground hover:text-foreground h-9 px-3 rounded-lg"
+                  title="Ver resultados (R)"
                 >
-                  <BarChart3 className="w-3 h-3 mr-1 animate-pulse" />
+                  <BarChart3 className="w-4 h-4 mr-1" />
                   Resultados
-                  <kbd className="absolute -top-1 -right-1 bg-success/30 text-success text-[10px] px-1 py-0.5 rounded-sm font-mono animate-bounce">
-                    R
-                  </kbd>
-                </Button>
-                
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground h-8 px-2 rounded-lg">
-                  <MessageSquare className="w-3 h-3 mr-1" />
-                  Dúvidas
-                </Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground h-8 px-2 rounded-lg">
-                  <Settings className="w-3 h-3 mr-1" />
-                  Config
                 </Button>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Progress Bar */}
-      <div className="bg-background/50 border-b border-border/30 sticky top-[132px] z-20">
-        <div className="px-4 sm:px-6">
-          <div className="flex items-center justify-between py-2">
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-medium text-muted-foreground">
-                Questão {currentQuestionIndex + 1} de {totalQuestions}
-              </span>
-              <div className="w-24 h-1.5 bg-muted rounded-lg overflow-hidden">
-                <div 
-                  className="h-full bg-primary transition-all duration-300 ease-out rounded-lg"
-                  style={{ width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%` }}
-                />
-              </div>
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)}%
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="px-4 sm:px-6 py-4">
+      <div className="px-4 sm:px-6 py-6">
         <div className="flex flex-col xl:flex-row gap-6">
           {/* Question Content */}
           <main className="flex-1 min-w-0">
@@ -452,13 +452,13 @@ const AnswerQuestionPage = () => {
           <aside className="xl:w-72 flex-shrink-0 space-y-4">
             {/* Timer */}
             {showTimer && (
-              <div className="sticky top-40">
+              <div className="sticky top-28">
                 <QuestionTimer onTimeUp={handleTimeUp} />
               </div>
             )}
             
             {/* Response Card */}
-            <div className="sticky top-40">
+            <div className="sticky top-28">
               <ResponseCard
                 respostasLista={respostasLista}
                 currentQuestionIndex={currentQuestionIndex}
@@ -471,7 +471,7 @@ const AnswerQuestionPage = () => {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="sticky bottom-0 z-40 bg-background/90 backdrop-blur-xl border-t border-border/40">
+      <div className="sticky bottom-0 z-40 bg-background/95 backdrop-blur border-t border-border/40">
         <div className="px-4 sm:px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -498,50 +498,28 @@ const AnswerQuestionPage = () => {
                 </Button>
               )}
             </div>
-            
+
             <div className="flex items-center gap-2">
-              {showResult ? (
+              {!showResult ? (
                 <Button 
-                  onClick={() => {
-                    if (currentQuestionIndex + 1 === totalQuestions) {
-                      navigate(`/resultados/${listId}`);
-                    } else {
-                      handleNavigate(currentQuestionIndex + 1);
-                    }
-                  }} 
-                  className="min-w-[160px] sm:min-w-[200px] bg-primary hover:bg-primary/90 h-9 rounded-lg"
+                  onClick={handleSubmit}
+                  disabled={submitting || selectedAnswerId === null}
+                  className="h-9 rounded-lg"
                 >
-                  {currentQuestionIndex + 1 === totalQuestions ? 'Ver Resultados' : 'Próxima Questão →'}
+                  {submitting ? (
+                    <><Loader2 className="w-4 h-4 animate-spin mr-2" />Enviando...</>
+                  ) : (
+                    'Confirmar Resposta'
+                  )}
                 </Button>
               ) : (
-                <>
-                  {/* Botão de Pular Questão */}
-                  <Button 
-                    variant="ghost" 
-                    onClick={handleSkipQuestion}
-                    disabled={submitting || currentQuestionIndex + 1 >= totalQuestions}
-                    className="hidden sm:flex items-center gap-1 h-9 px-3 rounded-lg text-muted-foreground hover:text-foreground"
-                  >
-                    <SkipForward className="w-4 h-4" />
-                    Pular
-                  </Button>
-                  
-                  {/* Botão Principal de Confirmar */}
-                  <Button 
-                    onClick={handleSubmit} 
-                    disabled={selectedAnswerId === null || submitting} 
-                    className="min-w-[160px] sm:min-w-[200px] bg-primary hover:bg-primary/90 h-9 rounded-lg"
-                  >
-                    {submitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
-                        Respondendo...
-                      </>
-                    ) : (
-                      'Confirmar Resposta'
-                    )}
-                  </Button>
-                </>
+                <Button 
+                  onClick={() => handleNavigate(currentQuestionIndex + 1)}
+                  disabled={currentQuestionIndex >= totalQuestions - 1}
+                  className="h-9 rounded-lg"
+                >
+                  {currentQuestionIndex >= totalQuestions - 1 ? 'Finalizada' : 'Próxima →'}
+                </Button>
               )}
             </div>
           </div>

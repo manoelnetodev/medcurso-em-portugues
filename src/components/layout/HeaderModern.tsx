@@ -108,8 +108,17 @@ export function HeaderModern({ customBreadcrumbs, onMenuToggle }: HeaderModernPr
       '/cronograma': 'Cronograma',
       '/instituicoes': 'Instituições',
       '/settings': 'Configurações',
+      '/comunidade': 'Comunidade',
     };
     
+    // Tratar rotas dinâmicas (como /questoes/:listId)
+    if (path.startsWith('/questoes/')) {
+      return 'Respondendo Questões';
+    }
+    if (path.startsWith('/resultados/')) {
+      return 'Resultados da Lista';
+    }
+
     return routes[path] || 'UltraMeds';
   };
 
@@ -126,8 +135,17 @@ export function HeaderModern({ customBreadcrumbs, onMenuToggle }: HeaderModernPr
       '/cronograma': 'Organize seus estudos com planejamento',
       '/instituicoes': 'Questões organizadas por instituição',
       '/settings': 'Personalize sua experiência de estudo',
+      '/comunidade': 'Compartilhe conhecimento e tire suas dúvidas',
     };
     
+    // Tratar subtítulos dinâmicos
+    if (path.startsWith('/questoes/')) {
+      return 'Responda as questões e acompanhe seu progresso';
+    }
+    if (path.startsWith('/resultados/')) {
+      return 'Análise detalhada dos seus resultados';
+    }
+
     return subtitles[path] || '';
   };
 

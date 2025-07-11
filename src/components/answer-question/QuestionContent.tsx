@@ -13,10 +13,12 @@ import { Tables } from '@/integrations/supabase/types';
 import { AlternativeItem } from './AlternativeItem';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle, XCircle, Lightbulb, TrendingUp, Users, Clock, Book, Zap, RefreshCw, Shuffle } from 'lucide-react';
+import { CheckCircle, XCircle, Lightbulb, TrendingUp, Users, Clock, Book, Zap, RefreshCw, Shuffle, MessageSquareText, Target, Trophy, AlertTriangle, Search, Smile, Meh, Frown, HelpCircle, Code, Shield, ChevronDown, ChevronUp, List } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
+import { RichTextRenderer } from '@/components/ui/rich-text-renderer';
+import { cn } from '@/lib/utils';
 
 interface QuestionContentProps {
   currentQuestion: QuestionDetails;
@@ -53,6 +55,10 @@ export const QuestionContent: React.FC<QuestionContentProps> = ({
   const [estudouLoading, setEstudouLoading] = useState(false);
   // Estado local para o motivo do erro
   const [errorReasonLocal, setErrorReasonLocal] = useState<Tables<'resposta_lista'>['motivo_erro'] | null>(respostaListaItem?.motivo_erro || null);
+  // Estado para controlar se a explicação está expandida
+  const [isExplanationExpanded, setIsExplanationExpanded] = useState(true);
+  // Estado para controlar se a explicação por alternativa está expandida
+  const [isAlternativeExplanationExpanded, setIsAlternativeExplanationExpanded] = useState(false);
 
   useEffect(() => {
     const fetchProvaNome = async () => {
@@ -148,57 +154,119 @@ export const QuestionContent: React.FC<QuestionContentProps> = ({
     }
   };
 
+  // Função para mapear a dificuldade
+  const getDifficultyInfo = (dif_q: string | null) => {
+    switch (dif_q) {
+      case 'f':
+        return { 
+          label: 'Fácil', 
+          color: 'text-green-600', 
+          bgColor: 'bg-green-500/15', 
+          borderColor: 'border-green-500/30',
+          icon: Smile
+        };
+      case 'm':
+        return { 
+          label: 'Médio', 
+          color: 'text-amber-600', 
+          bgColor: 'bg-amber-500/15', 
+          borderColor: 'border-amber-500/30',
+          icon: Meh
+        };
+      case 'd':
+        return { 
+          label: 'Difícil', 
+          color: 'text-red-600', 
+          bgColor: 'bg-red-500/15', 
+          borderColor: 'border-red-500/30',
+          icon: Frown
+        };
+      case 'sem_base':
+        return { 
+          label: 'Sem Base', 
+          color: 'text-slate-600', 
+          bgColor: 'bg-slate-500/15', 
+          borderColor: 'border-slate-500/30',
+          icon: HelpCircle
+        };
+      default:
+        return { 
+          label: 'Não definida', 
+          color: 'text-slate-600', 
+          bgColor: 'bg-slate-500/15', 
+          borderColor: 'border-slate-500/30',
+          icon: HelpCircle
+        };
+    }
+  };
+
+  const difficultyInfo = getDifficultyInfo(currentQuestion.dif_q as string | null);
+  const isSemBase = String(currentQuestion.dif_q) === 'sem_base';
+  const DifficultyIcon = difficultyInfo.icon;
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Tags de categoria, subcategoria e assunto */}
-      <div className="flex flex-wrap gap-1 mb-2">
+      <div className="flex flex-wrap gap-2 mb-2">
         {categoriaNome && (
-          <Badge variant="secondary" className="bg-blue-900/10 text-blue-900 border-blue-900/20 font-semibold text-[11px] px-2 py-0.5 rounded-lg">
+          <Badge variant="secondary" className="bg-blue-600/20 text-blue-800 dark:text-blue-200 border-blue-600/40 font-bold text-xs px-3 py-1 rounded-lg shadow-sm hover:bg-blue-600/25 transition-colors">
             {categoriaNome}
           </Badge>
         )}
         {subcategoriaNome && (
-          <Badge variant="secondary" className="bg-purple-900/10 text-purple-900 border-purple-900/20 font-semibold text-[11px] px-2 py-0.5 rounded-lg">
+          <Badge variant="secondary" className="bg-purple-600/20 text-purple-800 dark:text-purple-200 border-purple-600/40 font-bold text-xs px-3 py-1 rounded-lg shadow-sm hover:bg-purple-600/25 transition-colors">
             {subcategoriaNome}
           </Badge>
         )}
         {assuntoNome && (
-          <Badge variant="secondary" className="bg-green-900/10 text-green-900 border-green-900/20 font-semibold text-[11px] px-2 py-0.5 rounded-lg">
+          <Badge variant="secondary" className="bg-emerald-600/20 text-emerald-800 dark:text-emerald-200 border-emerald-600/40 font-bold text-xs px-3 py-1 rounded-lg shadow-sm hover:bg-emerald-600/25 transition-colors">
             {assuntoNome}
           </Badge>
         )}
       </div>
 
-      {/* Question Statement */}
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-card/50 backdrop-blur-sm rounded-xl">
+      {/* Question Statement - Modernizado */}
+      <Card className="border-0 shadow-lg bg-gradient-to-br from-card via-card/95 to-background/10 backdrop-blur-md rounded-2xl group hover:shadow-primary/5 transition-all duration-300">
         <CardContent className="p-4">
-          {/* Linha com número da questão e prova dentro do card */}
+          {/* Header com número da questão */}
           {currentQuestion.numero && provaNome && (
-            <div className="mb-3">
-              <span className="inline-block text-xs font-bold text-violet-500 bg-violet-500/10 px-2.5 py-1 rounded-xl tracking-tight">
-                {currentQuestion.numero} - {provaNome}
-              </span>
+            <div className="mb-4">
+              <div className="inline-flex items-center gap-2 text-xs font-bold text-violet-500 bg-gradient-to-r from-violet-500/12 to-violet-500/6 px-3 py-1.5 rounded-xl border border-violet-500/20 shadow-sm">
+                <div className="w-1.5 h-1.5 bg-violet-500 rounded-full animate-pulse"></div>
+                <span className="tracking-tight">{currentQuestion.numero} - {provaNome}</span>
+              </div>
             </div>
           )}
-          <div className="prose prose-invert max-w-none">
-            <div className="text-foreground/90 text-sm sm:text-base font-medium leading-relaxed bg-muted/30 rounded-xl p-4 border border-muted/40 shadow-sm">
-              <p className="m-0">{currentQuestion.enunciado}</p>
+          
+          {/* Enunciado com design moderno */}
+          <div className="relative group/question">
+            <div className="absolute inset-0 bg-gradient-to-br from-muted/20 via-muted/10 to-transparent rounded-xl blur-sm opacity-50 group-hover/question:opacity-70 transition-opacity duration-300"></div>
+            <div className="relative bg-gradient-to-br from-background/40 via-background/30 to-background/20 backdrop-blur-sm rounded-xl p-4 border border-muted/25 shadow-sm hover:border-muted/35 transition-all duration-300">
+              <div className="text-foreground/95 text-sm leading-relaxed">
+                <p className="m-0">{currentQuestion.enunciado}</p>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Alternatives Section */}
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-card/50 backdrop-blur-sm rounded-xl">
+      {/* Alternatives Section - Modernizada */}
+      <Card className="border-0 shadow-lg bg-gradient-to-br from-card via-card/95 to-background/10 backdrop-blur-md rounded-2xl group hover:shadow-primary/5 transition-all duration-300">
         <CardContent className="p-4">
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-              <h3 className="text-base font-semibold text-foreground">Alternativas</h3>
-              <span className="text-xs text-muted-foreground">Selecione a resposta correta:</span>
+            {/* Header das alternativas */}
+            <div className="flex items-center gap-3">
+              <div className="p-1.5 bg-primary/10 rounded-lg">
+                <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-foreground">Alternativas</h3>
+                <span className="text-xs text-muted-foreground">Selecione a resposta correta:</span>
+              </div>
             </div>
             
-            <div className="space-y-3">
+            {/* Lista de alternativas */}
+            <div className="space-y-2.5">
               {currentQuestion.alternativas.map((alt, index) => (
                 <AlternativeItem
                   key={alt.id}
@@ -218,188 +286,295 @@ export const QuestionContent: React.FC<QuestionContentProps> = ({
 
       {/* Result Section */}
       {showResult && (
-        <div className="space-y-4 animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
-          {/* Result Banner */}
-          <Card className={`border-0 shadow-lg overflow-hidden rounded-xl ${
+        <div className="space-y-3 animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
+          {/* Result Banner - Simplificado */}
+          <Card className={`border rounded-lg ${
             (isCurrentQuestionAnsweredCorrectly || currentQuestion.anulada)
-              ? 'bg-gradient-to-r from-success/10 to-success/5 border-success/20' 
-              : 'bg-gradient-to-r from-destructive/10 to-destructive/5 border-destructive/20'
+              ? 'bg-success/5 border-success/20' 
+              : 'bg-destructive/5 border-destructive/20'
           }`}>
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${
+                <div className={`p-1.5 rounded-lg ${
                   (isCurrentQuestionAnsweredCorrectly || currentQuestion.anulada)
-                    ? 'bg-success/20 text-success' 
-                    : 'bg-destructive/20 text-destructive'
+                    ? 'bg-success/10 text-success' 
+                    : 'bg-destructive/10 text-destructive'
                 }`}>
                   {(isCurrentQuestionAnsweredCorrectly || currentQuestion.anulada) ? (
-                    <CheckCircle className="h-5 w-5" />
+                    <CheckCircle className="h-4 w-4" />
                   ) : (
-                    <XCircle className="h-5 w-5" />
+                    <XCircle className="h-4 w-4" />
                   )}
                 </div>
-                <div>
-                  <h3 className={`text-base font-bold ${
+                
+                <div className="flex-1">
+                  <h3 className={`font-bold text-sm ${
                     (isCurrentQuestionAnsweredCorrectly || currentQuestion.anulada) ? 'text-success' : 'text-destructive'
                   }`}>
-                    {currentQuestion.anulada ? 'Questão Anulada!' : (isCurrentQuestionAnsweredCorrectly ? 'Resposta Correta!' : 'Resposta Incorreta')}
+                    {currentQuestion.anulada ? 'Questão Anulada' : (isCurrentQuestionAnsweredCorrectly ? 'Resposta Correta' : 'Resposta Incorreta')}
                   </h3>
-                  <p className="text-muted-foreground text-xs">
-                    {currentQuestion.anulada 
-                      ? 'Esta questão foi anulada. Todas as alternativas estão corretas.' 
-                      : (isCurrentQuestionAnsweredCorrectly 
-                        ? 'Parabéns! Você acertou esta questão.' 
-                        : 'Não se preocupe, continue estudando!')
-                    }
-                  </p>
                 </div>
+                
+                <Badge variant="outline" className={`text-xs ${
+                  (isCurrentQuestionAnsweredCorrectly || currentQuestion.anulada)
+                    ? 'border-success/25 text-success' 
+                    : 'border-destructive/25 text-destructive'
+                }`}>
+                  {currentQuestion.anulada ? 'Anulada' : (isCurrentQuestionAnsweredCorrectly ? 'Acertou' : 'Errou')}
+                </Badge>
               </div>
             </CardContent>
           </Card>
 
-          {/* Explanation */}
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-card/50 backdrop-blur-sm rounded-xl">
-            <CardContent className="p-4">
-              <div className="space-y-3">
-                              <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-primary/10 rounded-lg">
-                  <Lightbulb className="h-4 w-4 text-primary" />
+          {/* Explanation - Simplificada */}
+          <Card className="border rounded-lg">
+            <CardContent className="p-0">
+              {/* Header com Toggle */}
+              <div 
+                className={cn(
+                  "p-3 cursor-pointer hover:bg-muted/5 transition-colors",
+                  isExplanationExpanded ? "border-b" : ""
+                )}
+                onClick={() => setIsExplanationExpanded(!isExplanationExpanded)}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-1.5 bg-primary/10 rounded-lg">
+                    <Lightbulb className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-sm">Explicação</h4>
+                    <p className="text-xs text-muted-foreground">
+                      {isExplanationExpanded ? "Raciocínio da resposta" : "Clique para ver explicação"}
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs border-success/25 text-success">
+                      Validado
+                    </Badge>
+                    
+                    {isExplanationExpanded ? (
+                      <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </div>
                 </div>
-                <h4 className="text-base font-semibold text-foreground">Explicação</h4>
               </div>
               
-              <div className="prose prose-invert prose-sm max-w-none">
-                <div className="bg-muted/40 rounded-lg p-4 border border-muted/30">
-                  <p className="text-foreground/90 leading-relaxed m-0 text-sm">
-                    {currentQuestion.comentario || "Nenhuma explicação disponível para esta questão."}
-                  </p>
+              {/* Content */}
+              {isExplanationExpanded && (
+                <div className="p-3 animate-in slide-in-from-top-2 fade-in-0 duration-200">
+                  <div className="bg-muted/5 rounded-lg p-3 border">
+                    <RichTextRenderer 
+                      content={currentQuestion.comentario || ""} 
+                      className="text-sm leading-relaxed"
+                    />
+                  </div>
                 </div>
-              </div>
-              </div>
+              )}
             </CardContent>
           </Card>
 
-          {/* Error Classification */}
-          {!isCurrentQuestionAnsweredCorrectly && !currentQuestion.anulada && (
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-card/50 backdrop-blur-sm rounded-xl">
-              <CardContent className="p-4">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-destructive/10 text-destructive text-base font-bold">
-                      ❌
-                    </span>
-                    <span className="text-sm font-semibold text-foreground">Classificar Erro</span>
-                  </div>
-                  <p className="text-muted-foreground text-xs">
-                    Ajude-nos a melhorar seus estudos classificando o motivo do erro:
-                  </p>
-                  {/* Seletor visual de motivo do erro */}
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { label: 'Falta de Conhecimento', value: 'FC', color: 'bg-blue-600 border-blue-500', icon: <Book className="w-5 h-5" /> },
-                      { label: 'Falta de Atenção', value: 'FA', color: 'bg-yellow-500 border-yellow-400', icon: <Zap className="w-5 h-5" /> },
-                      { label: 'Falta de Revisão', value: 'FR', color: 'bg-purple-600 border-purple-500', icon: <RefreshCw className="w-5 h-5" /> },
-                      { label: 'Confusão de Alternativas', value: 'CA', color: 'bg-pink-600 border-pink-500', icon: <Shuffle className="w-5 h-5" /> },
-                    ].map(option => {
-                      const selected = errorReasonLocal === option.value;
-                      return (
-                        <Button
-                          key={option.value}
-                          type="button"
-                          variant="ghost"
-                          className={`flex flex-col items-center justify-center h-16 rounded-lg border-2 transition-all duration-200 px-2
-                            ${selected ? option.color + ' text-white border-2' : 'bg-card border-border text-white hover:bg-muted/60'}
-                            ${selected ? '' : 'hover:border-primary/40'}
-                          `}
-                          onClick={() => handleMotivoErroChange(option.value as any)}
-                          disabled={submitting}
-                        >
-                          <div className="flex flex-col items-center justify-center gap-1">
-                            <span>{option.icon}</span>
-                            <span className="text-xs font-semibold text-center leading-tight">{option.label}</span>
-                            <span className="text-xs font-bold">{option.value}</span>
-                          </div>
-                        </Button>
-                      );
-                    })}
+          {/* Explicação por Alternativa */}
+          {showResult && (
+            <Card className="border rounded-lg">
+              <CardContent className="p-0">
+                {/* Header com Toggle */}
+                <div 
+                  className={cn(
+                    "p-3 cursor-pointer hover:bg-muted/5 transition-colors",
+                    isAlternativeExplanationExpanded ? "border-b" : ""
+                  )}
+                  onClick={() => setIsAlternativeExplanationExpanded(!isAlternativeExplanationExpanded)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-1.5 bg-primary/10 rounded-lg">
+                      <List className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-sm">Explicação por Alternativa</h4>
+                      <p className="text-xs text-muted-foreground">
+                        {isAlternativeExplanationExpanded ? "Análise detalhada de cada opção" : "Clique para ver explicações individuais"}
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">
+                        {currentQuestion.alternativas.filter(alt => alt.comentario).length} de {currentQuestion.alternativas.length}
+                      </Badge>
+                      
+                      {isAlternativeExplanationExpanded ? (
+                        <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </div>
                   </div>
                 </div>
+                
+                {/* Content */}
+                {isAlternativeExplanationExpanded && (
+                  <div className="p-3 animate-in slide-in-from-top-2 fade-in-0 duration-200">
+                    <div className="space-y-3">
+                      {currentQuestion.alternativas.map((alternative, index) => {
+                        const letter = String.fromCharCode(65 + index);
+                        const hasComment = alternative.comentario && alternative.comentario.trim() !== '';
+                        
+                        return (
+                          <div key={alternative.id} className="border rounded-lg overflow-hidden">
+                            {/* Header da alternativa */}
+                            <div className={cn(
+                              "flex items-start gap-3 p-3",
+                              alternative.correta 
+                                ? "bg-success/5 border-b border-success/20" 
+                                : "bg-muted/3 border-b"
+                            )}>
+                              <div className={cn(
+                                "w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold",
+                                alternative.correta 
+                                  ? "bg-success/15 text-success border border-success/30"
+                                  : "bg-muted text-muted-foreground"
+                              )}>
+                                {letter}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-foreground">
+                                  {alternative.alternativa_txt}
+                                </p>
+                              </div>
+                              {alternative.correta && (
+                                <Badge variant="outline" className="text-xs border-success/25 text-success bg-success/5">
+                                  Correta
+                                </Badge>
+                              )}
+                            </div>
+                            
+                            {/* Explicação da alternativa */}
+                            {hasComment && (
+                              <div className="p-3 bg-muted/3">
+                                <RichTextRenderer 
+                                  content={alternative.comentario || ""} 
+                                  className="text-sm text-muted-foreground leading-relaxed"
+                                />
+                              </div>
+                            )}
+                            
+                            {/* Placeholder se não tiver comentário */}
+                            {!hasComment && (
+                              <div className="p-3 bg-muted/3">
+                                <p className="text-xs text-muted-foreground italic flex items-center gap-1">
+                                  <MessageSquareText className="h-3 w-3" />
+                                  Explicação não disponível para esta alternativa
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
 
-          {/* Checkbox Estudou - novo design */}
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-card/50 backdrop-blur-sm rounded-xl">
+          {/* Seções agrupadas: Classificar Erro + Você estudou */}
+          {showResult && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {/* Você estudou esse tema? */}
+              <Card className="border rounded-lg">
+                <CardContent className="p-3">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Book className="h-4 w-4 text-primary" />
+                      <h4 className="font-bold text-sm">Você estudou esse tema?</h4>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant={isEstudou ? "default" : "outline"}
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleToggleEstudou(true)}
+                        disabled={estudouLoading}
+                      >
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        Sim
+                      </Button>
+                      
+                      <Button
+                        type="button"
+                        variant={!isEstudou ? "destructive" : "outline"}
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleToggleEstudou(false)}
+                        disabled={estudouLoading}
+                      >
+                        <XCircle className="w-4 h-4 mr-1" />
+                        Não
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Motivo do Erro */}
+              {!isCurrentQuestionAnsweredCorrectly && !currentQuestion.anulada && (
+                <Card className="border rounded-lg">
+                  <CardContent className="p-3">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <XCircle className="h-4 w-4 text-destructive" />
+                        <h4 className="font-bold text-sm">Classificar Erro</h4>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2">
+                        {motivoErroOptions.map((option) => (
+                          <Button
+                            key={option.value}
+                            type="button"
+                            variant={errorReason === option.value ? "destructive" : "outline"}
+                            size="sm"
+                            className="text-left justify-start"
+                            onClick={() => setErrorReason(option.value)}
+                          >
+                            <div className="text-xs truncate">{option.label}</div>
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {/* Statistics - Simplificadas */}
+          <Card className="border rounded-lg">
             <CardContent className="p-3">
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-primary/10 text-primary text-base font-bold">
-                    📚
-                  </span>
-                  <span className="text-sm font-semibold text-foreground">Você estudou esse tema?</span>
-                </div>
-                <div className="flex gap-3 justify-center">
-                  <Button
-                    type="button"
-                    variant={isEstudou ? "default" : "outline"}
-                    className={`flex flex-col items-center justify-center w-14 h-14 rounded-lg border-2 ${isEstudou ? 'border-green-600 bg-green-600/20 text-green-700' : 'border-border'}`}
-                    onClick={() => handleToggleEstudou(true)}
-                    disabled={estudouLoading}
-                  >
-                    <CheckCircle className="w-6 h-6 mb-0.5" />
-                    <span className="text-xs font-medium">Sim</span>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={!isEstudou ? "default" : "outline"}
-                    className={`flex flex-col items-center justify-center w-14 h-14 rounded-lg border-2 ${!isEstudou ? 'border-destructive bg-destructive/20 text-destructive' : 'border-border'}`}
-                    onClick={() => handleToggleEstudou(false)}
-                    disabled={estudouLoading}
-                  >
-                    <XCircle className="w-6 h-6 mb-0.5" />
-                    <span className="text-xs font-medium">Não</span>
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Statistics */}
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-card/50 backdrop-blur-sm rounded-xl">
-            <CardContent className="p-4">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-primary/10 rounded-lg">
-                    <TrendingUp className="h-4 w-4 text-primary" />
-                  </div>
-                  <h4 className="text-base font-semibold text-foreground">Estatísticas da Questão</h4>
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                  <h4 className="font-bold text-sm">Estatísticas</h4>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-muted/40 rounded-lg p-4 text-center border border-muted/30">
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <Users className="h-3 w-3 text-primary" />
-                      <span className="text-xs text-muted-foreground font-medium">Taxa de Acerto</span>
-                    </div>
-                    <div className="text-2xl font-bold text-foreground">
+                {/* Grid compacto */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-muted/5 border rounded-lg p-2">
+                    <div className="text-lg font-bold text-primary">
                       {currentQuestion.percentual_acertos || 0}%
                     </div>
+                    <div className="text-xs text-muted-foreground">Taxa de Acerto</div>
                   </div>
                   
-                  <div className="bg-muted/40 rounded-lg p-4 text-center border border-muted/30">
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <TrendingUp className="h-3 w-3 text-success" />
-                      <span className="text-xs text-muted-foreground font-medium">Seu Histórico</span>
+                  <div className={`border rounded-lg p-2 ${difficultyInfo.bgColor} ${difficultyInfo.borderColor}`}>
+                    <div className={`text-lg font-bold ${difficultyInfo.color} flex items-center gap-1`}>
+                      <DifficultyIcon className="h-4 w-4" />
+                      {difficultyInfo.label}
                     </div>
-                    <div className="text-2xl font-bold text-success">N/A</div>
-                  </div>
-                  
-                  <div className="bg-muted/40 rounded-lg p-4 text-center border border-muted/30">
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <Clock className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground font-medium">Total Respostas</span>
-                    </div>
-                    <div className="text-2xl font-bold text-foreground">N/A</div>
+                    <div className="text-xs text-muted-foreground">Dificuldade</div>
                   </div>
                 </div>
               </div>

@@ -86,7 +86,7 @@ const ListasPage = () => {
   const getStatusBadge = (lista: Tables<'lista'>) => {
     if (lista.finalizada) {
       return (
-        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+        <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30">
           <Target className="w-3 h-3 mr-1" />
           Finalizada
         </Badge>
@@ -94,14 +94,14 @@ const ListasPage = () => {
     }
     if (lista.total_respondidas && lista.total_respondidas > 0) {
       return (
-        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+        <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30">
           <Clock className="w-3 h-3 mr-1" />
           Em progresso
         </Badge>
       );
     }
     return (
-      <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+      <Badge variant="outline" className="bg-muted text-muted-foreground border-muted-foreground/20">
         <BookOpen className="w-3 h-3 mr-1" />
         Não iniciada
       </Badge>
@@ -110,9 +110,9 @@ const ListasPage = () => {
 
   const getCategoryColor = (tipo: string) => {
     const colors = {
-      'prova': 'bg-primary/10 text-primary border-primary/20',
-      'lista': 'bg-blue-500/10 text-blue-600 border-blue-500/20',
-      'default': 'bg-muted text-muted-foreground border-muted'
+      'prova': 'bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:border-primary/30',
+      'lista': 'bg-blue-500/10 text-blue-600 border-blue-500/20 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30',
+      'default': 'bg-muted text-muted-foreground border-muted-foreground/20'
     };
     return colors[tipo as keyof typeof colors] || colors.default;
   };
@@ -164,7 +164,7 @@ const ListasPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-none">
       {/* Header com busca */}
       <div className="flex items-center justify-between">
         <div className="relative w-72">
@@ -185,15 +185,17 @@ const ListasPage = () => {
       </div>
 
       {/* Tabela */}
-      <div className="rounded-lg border bg-card">
+      <div className="rounded-lg border bg-card shadow-sm overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead>Lista</TableHead>
-              <TableHead>Progresso</TableHead>
-              <TableHead>Última atividade</TableHead>
-              <TableHead>Categorias</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+            <TableRow className="hover:bg-transparent border-b border-border/50">
+              <TableHead className="font-medium text-muted-foreground min-w-[200px]">Lista</TableHead>
+              <TableHead className="font-medium text-muted-foreground min-w-[120px]">Progresso</TableHead>
+              <TableHead className="font-medium text-muted-foreground min-w-[140px]">Porcentagem de acerto</TableHead>
+              <TableHead className="font-medium text-muted-foreground min-w-[120px]">Criada em</TableHead>
+              <TableHead className="font-medium text-muted-foreground min-w-[120px]">Status</TableHead>
+              <TableHead className="font-medium text-muted-foreground min-w-[100px]">Tipo</TableHead>
+              <TableHead className="text-right font-medium text-muted-foreground min-w-[100px]">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -213,7 +215,13 @@ const ListasPage = () => {
                     <div className="h-4 w-16 bg-muted animate-pulse rounded"></div>
                   </TableCell>
                   <TableCell>
+                    <div className="h-4 w-16 bg-muted animate-pulse rounded"></div>
+                  </TableCell>
+                  <TableCell>
                     <div className="h-4 w-20 bg-muted animate-pulse rounded"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-6 w-16 bg-muted animate-pulse rounded"></div>
                   </TableCell>
                   <TableCell>
                     <div className="h-6 w-16 bg-muted animate-pulse rounded"></div>
@@ -225,7 +233,7 @@ const ListasPage = () => {
               ))
             ) : listas.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-12">
+                <TableCell colSpan={7} className="text-center py-12">
                   <div className="flex flex-col items-center gap-2">
                     <BookOpen className="h-12 w-12 text-muted-foreground" />
                     <p className="text-muted-foreground">
@@ -240,16 +248,16 @@ const ListasPage = () => {
                 const accuracyPercent = lista.porcentagem_acertos || 0;
                 
                 return (
-                  <TableRow key={lista.id} className="group hover:bg-muted/50">
+                  <TableRow key={lista.id} className="group hover:bg-muted/30 transition-colors border-b border-border/30">
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
+                        <Avatar className="h-8 w-8 flex-shrink-0">
                           <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
                             {lista.nome.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
-                          <p className="font-medium text-foreground leading-none">{lista.nome}</p>
+                        <div className="min-w-0">
+                          <p className="font-medium text-foreground leading-none truncate">{lista.nome}</p>
                           <p className="text-sm text-muted-foreground mt-1">
                             {lista.total_questoes || 0} questões
                           </p>
@@ -258,27 +266,36 @@ const ListasPage = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <div className="w-16">
+                        <div className="w-16 flex-shrink-0">
                           <Progress value={progressPercent} className="h-2" />
                         </div>
-                        <span className="text-sm font-medium text-foreground min-w-0">
+                        <span className="text-sm font-medium text-foreground whitespace-nowrap">
                           {Math.round(progressPercent)}%
                         </span>
-                        {lista.finalizada && (
-                          <span className="text-green-600 text-xs">• {Math.round(accuracyPercent)}% acertos</span>
-                        )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell>
+                      {lista.finalizada ? (
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm font-medium text-foreground">
+                            {Math.round(accuracyPercent)}%
+                          </span>
+                          <span className="text-green-600 dark:text-green-400 text-xs">acertos</span>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                       {formatDate(lista.criado_em || '')}
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-1">
-                        {getStatusBadge(lista)}
-                        <Badge variant="outline" className={getCategoryColor(lista.tipo_lista || 'default')}>
-                          {lista.tipo_lista === 'prova' ? 'Prova' : 'Lista'}
-                        </Badge>
-                      </div>
+                      {getStatusBadge(lista)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={getCategoryColor(lista.tipo_lista || 'default')}>
+                        {lista.tipo_lista === 'prova' ? 'Prova' : 'Lista'}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
@@ -372,3 +389,4 @@ const ListasPage = () => {
 };
 
 export default ListasPage;
+
